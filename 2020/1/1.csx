@@ -1,11 +1,13 @@
-int[] numbers = File.ReadAllLines("./input.txt").Select(Int32.Parse).ToArray();
-
-for (int i = 0; i < numbers.Length; i++)
+bool[] numbers = new bool[2020];
+foreach (int n in File.ReadAllLines("./input.txt").Select(Int32.Parse))
 {
-	for (int j = i + 1; j < numbers.Length; j++)
+	if (n < 2020)
 	{
-		if (numbers[i] + numbers[j] == 2020) {
-			WriteLine($"{numbers[i]} + {numbers[j]} = 2020; {numbers[i]} * {numbers[j]} = {numbers[i] * numbers[j]}");
+		numbers[n] = true;
+		if (numbers[2020 - n])
+		{
+			WriteLine(n * (2020 - n));
+			break;
 		}
 	}
 }
