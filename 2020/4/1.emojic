@@ -1,0 +1,64 @@
+📦 files 🏠
+
+🏁 🍇
+	🍺📇🐇📄 🔤./input.txt🔤 ❗ ➡ file
+	🍺🔡 file ❗ ➡ text
+	🔫 text 🔤❌n🔤 ❗ ➡ lines
+
+	🆕🍨🐚🍨🐚🔡🍆🍆❗ ➡ 🖍🆕passports
+	🆕🍨🐚🔡🍆❗ ➡ 🖍🆕currentPassport
+	🔂 line lines 🍇
+		↪ 📐 line ❗ ▶ 0 🍇
+			🔂 field 🔫 🔧 line ❗ 🔤 🔤 ❗ 🍇
+				🐻 currentPassport field ❗
+			🍉
+		🍉
+		🙅‍♀️↪ 📏 currentPassport ❓ ▶ 0 🍇
+			🐻 passports currentPassport ❗
+			🆕🍨🐚🔡🍆❗ ➡ 🖍currentPassport
+		🍉
+	🍉
+	↪ 📏 currentPassport ❓ ▶ 0 🍇
+		🐻 passports currentPassport ❗
+	🍉
+
+	0 ➡ 🖍🆕count
+	🔂 passport passports 🍇
+		👎 ➡ 🖍🆕byr
+		👎 ➡ 🖍🆕iyr
+		👎 ➡ 🖍🆕eyr
+		👎 ➡ 🖍🆕hgt
+		👎 ➡ 🖍🆕hcl
+		👎 ➡ 🖍🆕ecl
+		👎 ➡ 🖍🆕pid
+
+		🔂 field passport 🍇
+			↪ 🎼 field 🔤byr🔤 ❗ 🍇
+				👍 ➡ 🖍byr
+			🍉
+			🙅‍♀️↪ 🎼 field 🔤iyr🔤 ❗ 🍇
+				👍 ➡ 🖍iyr
+			🍉
+			🙅‍♀️↪ 🎼 field 🔤eyr🔤 ❗ 🍇
+				👍 ➡ 🖍eyr
+			🍉
+			🙅‍♀️↪ 🎼 field 🔤hgt🔤 ❗ 🍇
+				👍 ➡ 🖍hgt
+			🍉
+			🙅‍♀️↪ 🎼 field 🔤hcl🔤 ❗ 🍇
+				👍 ➡ 🖍hcl
+			🍉
+			🙅‍♀️↪ 🎼 field 🔤ecl🔤 ❗ 🍇
+				👍 ➡ 🖍ecl
+			🍉
+			🙅‍♀️↪ 🎼 field 🔤pid🔤 ❗ 🍇
+				👍 ➡ 🖍pid
+			🍉
+		🍉
+
+		↪ byr 🤝 iyr 🤝 eyr 🤝 hgt 🤝 hcl 🤝 ecl 🤝 pid 🍇
+			count ⬅➕ 1
+		🍉
+	🍉
+	😀 🔡 count ❗ ❗
+🍉
