@@ -1,0 +1,19 @@
+south
+west
+west
+take astrolabe
+east
+east
+south
+take candy cane
+north
+north
+east
+take food ration
+south
+east
+south
+east
+take space law space brochure
+north
+west
