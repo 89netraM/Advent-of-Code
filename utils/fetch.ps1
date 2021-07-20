@@ -40,6 +40,8 @@ try {
 		$description = $html.body.innerText -split "`r`n";
 		$description[15..($description.Length - 4)] | ForEach-Object { "// $_" } | Out-File -Path "$dayPath\1.$Language";
 
+		Set-Location -Path $dayPath;
+
 		code "$dayPath\1.$Language";
 	}
 	catch {
