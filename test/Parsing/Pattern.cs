@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace AoC.Library.Test
 {
 	[TestClass]
-	public class ParsingTest
+	public partial class ParsingTest
 	{
 		[TestMethod]
 		public void PatternParser1_MatchAndNotMatch()

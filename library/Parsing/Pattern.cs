@@ -5,7 +5,7 @@ using static AoC.Library.Functional;
 
 namespace AoC.Library
 {
-	public static class Parsing
+	public static partial class Parsing
 	{
 		public static Func<string, T?> PatternParser<T>(string pattern) =>
 			PatternParser<T, T>(new Regex(pattern), Id);
