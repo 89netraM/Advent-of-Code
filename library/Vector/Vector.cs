@@ -7,28 +7,36 @@ namespace AoC.Library
 {
 	public static class Vector
 	{
-		public static T Zero<T>() where T : IVector<T>, new() =>
-			new T();
+		private static T FromArray<T>(IReadOnlyList<long> array) where T : IVector<T> => array.Count switch
+		{
+			2 => (T)(object)new Vector2(array[0], array[1]),
+			3 => (T)(object)new Vector3(array[0], array[1], array[2]),
+			4 => (T)(object)new Vector4(array[0], array[1], array[2], array[3]),
+			_ => throw new ArgumentException("Invalid array length"),
+		};
 
-		public static IEnumerable<T> DirectionsMoore<T>() where T : IVector<T>, new() =>
+		public static T Zero<T>() where T : struct, IVector<T> =>
+			default;
+
+		public static IEnumerable<T> DirectionsMoore<T>() where T : struct, IVector<T> =>
 			Zero<T>().NeighborsMoore();
-		public static IEnumerable<T> DirectionsVonNeumann<T>() where T : IVector<T>, new() =>
+		public static IEnumerable<T> DirectionsVonNeumann<T>() where T : struct, IVector<T> =>
 			Zero<T>().NeighborsVonNeumann();
 
-		public static IEnumerable<T> NeighborsMoore<T>(this T v, long range = 1) where T : IVector<T>, new() =>
+		public static IEnumerable<T> NeighborsMoore<T>(this T v, long range = 1) where T : IVector<T> =>
 			v.NeighborsMooreRecursive(range, new List<long>());
-		private static IEnumerable<T> NeighborsMooreRecursive<T>(this T v, long range, IList<long> taken) where T : IVector<T>, new()
+		private static IEnumerable<T> NeighborsMooreRecursive<T>(this T v, long range, IList<long> taken) where T : IVector<T>
 		{
 			if (taken.Count == v.Count)
 			{
 				if (taken.Any(static x => x != 0))
 				{
-					T t = new T();
+					long[] t = new long[v.Count];
 					for (int i = 0; i < v.Count; i++)
 					{
 						t[i] = v[i] + taken[(int)v.Count - i - 1];
 					}
-					yield return t;
+					yield return FromArray<T>(t);
 				}
 			}
 			else
@@ -45,20 +53,20 @@ namespace AoC.Library
 			}
 		}
 
-		public static IEnumerable<T> NeighborsVonNeumann<T>(this T v, long range = 1) where T : IVector<T>, new() =>
+		public static IEnumerable<T> NeighborsVonNeumann<T>(this T v, long range = 1) where T : IVector<T> =>
 			v.NeighborsVonNeumannRecursive(range, new List<long>());
-		private static IEnumerable<T> NeighborsVonNeumannRecursive<T>(this T v, long range, IList<long> taken) where T : IVector<T>, new()
+		private static IEnumerable<T> NeighborsVonNeumannRecursive<T>(this T v, long range, IList<long> taken) where T : IVector<T>
 		{
 			if (taken.Count == v.Count)
 			{
 				if (taken.Any(static x => x != 0))
 				{
-					T t = new T();
+					long[] t = new long[v.Count];
 					for (int i = 0; i < v.Count; i++)
 					{
 						t[i] = v[i] + taken[(int)v.Count - i - 1];
 					}
-					yield return t;
+					yield return FromArray<T>(t);
 				}
 			}
 			else
@@ -75,7 +83,7 @@ namespace AoC.Library
 			}
 		}
 
-		public static long ManhattanDistance<T>(this T vector, T other) where T : IVector<T>, new()
+		public static long ManhattanDistance<T>(this T vector, in T other) where T : IVector<T>
 		{
 			long distance = 0L;
 			for (long i = 0; i < vector.Count; i++)
@@ -85,7 +93,7 @@ namespace AoC.Library
 			return distance;
 		}
 
-		public static double Distance<T>(this T vector, T other) where T : IVector<T>, new()
+		public static double Distance<T>(this T vector, in T other) where T : IVector<T>
 		{
 			double distance = 0.0d;
 			for (long i = 0; i < vector.Count; i++)
@@ -95,53 +103,53 @@ namespace AoC.Library
 			return Math.Sqrt(distance);
 		}
 
-		public static T Add<T>(this T vector, T other) where T : IVector<T>, new()
+		public static T Add<T>(this T vector, in T other) where T : IVector<T>
 		{
-			T t = new T();
+			long[] t = new long[vector.Count];
 			for (long i = 0; i < vector.Count; i++)
 			{
 				t[i] = vector[i] + other[i];
 			}
-			return t;
+			return FromArray<T>(t);
 		}
-		public static T Subtract<T>(this T vector, T other) where T : IVector<T>, new()
+		public static T Subtract<T>(this T vector, in T other) where T : IVector<T>
 		{
-			T t = new T();
+			long[] t = new long[vector.Count];
 			for (long i = 0; i < vector.Count; i++)
 			{
 				t[i] = vector[i] - other[i];
 			}
-			return t;
+			return FromArray<T>(t);
 		}
-		public static T Multiply<T>(this T vector, long value) where T : IVector<T>, new()
+		public static T Multiply<T>(this T vector, long value) where T : IVector<T>
 		{
-			T t = new T();
+			long[] t = new long[vector.Count];
 			for (long i = 0; i < vector.Count; i++)
 			{
 				t[i] = vector[i] * value;
 			}
-			return t;
+			return FromArray<T>(t);
 		}
-		public static T Divide<T>(this T vector, long value) where T : IVector<T>, new()
+		public static T Divide<T>(this T vector, long value) where T : IVector<T>
 		{
-			T t = new T();
+			long[] t = new long[vector.Count];
 			for (long i = 0; i < vector.Count; i++)
 			{
 				t[i] = vector[i] / value;
 			}
-			return t;
+			return FromArray<T>(t);
 		}
-		public static T Negate<T>(this T vector) where T : IVector<T>, new()
+		public static T Negate<T>(this T vector) where T : IVector<T>
 		{
-			T t = new T();
+			long[] t = new long[vector.Count];
 			for (long i = 0; i < vector.Count; i++)
 			{
 				t[i] = -vector[i];
 			}
-			return t;
+			return FromArray<T>(t);
 		}
 
-		public static bool Equals<T>(T a, T b) where T : IVector<T>, new()
+		public static bool Equals<T>(in T a, in T b) where T : IVector<T>
 		{
 			for (long i = 0; i < a.Count; i++)
 			{
@@ -152,7 +160,7 @@ namespace AoC.Library
 			}
 			return true;
 		}
-		public static int Compare<T>(T a, T b) where T : IVector<T>, new()
+		public static int Compare<T>(in T a, in T b) where T : IVector<T>
 		{
 			for (long i = a.Count - 1; i >= 0; i--)
 			{
@@ -165,7 +173,7 @@ namespace AoC.Library
 			return 0;
 		}
 
-		public static string AsString<T>(T vector) where T : IVector<T>, new()
+		public static string AsString<T>(in T vector) where T : IVector<T>
 		{
 			StringBuilder sb = new StringBuilder("(");
 			for (long i = 0; i < vector.Count; i++)

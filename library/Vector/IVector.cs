@@ -2,9 +2,9 @@ using System;
 
 namespace AoC.Library
 {
-	public interface IVector<T> : IEquatable<T>, IComparable<T> where T : IVector<T>, new()
+	public interface IVector<T> : IEquatable<T>, IComparable<T> where T : IVector<T>
 	{
 		internal long Count { get; }
-		internal long this[long index] { get; set; }
+		internal long this[long index] { get; }
 	}
 }

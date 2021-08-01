@@ -2,40 +2,20 @@ using System;
 
 namespace AoC.Library
 {
-	public struct Vector3 : IVector<Vector3>
+	public readonly struct Vector3 : IVector<Vector3>
 	{
 		long IVector<Vector3>.Count => 3;
-		long IVector<Vector3>.this[long index]
+		long IVector<Vector3>.this[long index] => index switch
 		{
-			get => index switch
-			{
-				0 => X,
-				1 => Y,
-				2 => Z,
-				_ => throw new IndexOutOfRangeException()
-			};
-			set
-			{
-				switch (index)
-				{
-					case 0:
-						X = value;
-						break;
-					case 1:
-						Y = value;
-						break;
-					case 2:
-						Z = value;
-						break;
-					default:
-						throw new IndexOutOfRangeException();
-				}
-			}
-		}
+			0 => X,
+			1 => Y,
+			2 => Z,
+			_ => throw new IndexOutOfRangeException()
+		};
 
-		public long X { get; internal set; }
-		public long Y { get; internal set; }
-		public long Z { get; internal set; }
+		public long X { get; }
+		public long Y { get; }
+		public long Z { get; }
 
 		public Vector3(long x, long y, long z) =>
 			(X, Y, Z) = (x, y, z);
