@@ -59,5 +59,16 @@ namespace AoC.Library.Test
 			Prop.ForAll<Tuple<int, int, int>>(p => Sum(p.Item1, p.Item2, p.Item3) == uncurriedSum((p.Item1, p.Item2, p.Item3)))
 				.QuickCheckThrowOnFailure();
 		}
+
+		[TestMethod]
+		public void Memoization()
+		{
+			static string ToUpper(string s) => s.ToUpper();
+			Func<string, string> memoizedToUpper = Memoize<string, string>(ToUpper);
+			Prop.ForAll(
+					Utils.NotNull<string>(),
+					p => Object.ReferenceEquals(memoizedToUpper(p), memoizedToUpper(p))
+				).QuickCheckThrowOnFailure();
+		}
 	}
 }

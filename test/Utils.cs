@@ -10,6 +10,9 @@ namespace AoC.Library.Test
 		public static Arbitrary<long> PositiveLong { get; } =
 			Arb.From<long>().MapFilter(static l => Math.Abs(l), static l => l >= 0);
 
+		public static Arbitrary<T> NotNull<T>() =>
+			Arb.From<T>().Filter(static t => t is not null);
+
 		public static long DelannoyNumber(long m, long n)
 		{
 			long result = 0L;
