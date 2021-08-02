@@ -1,14 +1,19 @@
 using System;
-using System.Numerics;
-using System.Linq;
 using FsCheck;
 
 namespace AoC.Library.Test
 {
 	public static class Utils
 	{
+		public static Arbitrary<int> PositiveInt { get; } =
+			Arb.From<int>().MapFilter(static l => Math.Abs(l), static l => l >= 0);
 		public static Arbitrary<long> PositiveLong { get; } =
 			Arb.From<long>().MapFilter(static l => Math.Abs(l), static l => l >= 0);
+
+		public static Arbitrary<int> NonZeroInt { get; } =
+			PositiveInt.Filter(static l => l != 0);
+		public static Arbitrary<long> NonZeroLong { get; } =
+			PositiveLong.Filter(static l => l != 0);
 
 		public static Arbitrary<T> NotNull<T>() =>
 			Arb.From<T>().Filter(static t => t is not null);
