@@ -102,5 +102,34 @@ namespace AoC.Library.Test
 			Assert.AreEqual(2.0000d, Vector.Zero<Vector4>().Distance(new Vector4(1, -1, -1, 1)), 0.0001d);
 			Assert.AreEqual(7.1414d, new Vector4(12, 1, -4, -1).Distance(new Vector4(13, -2, 1, -5)), 0.0001d);
 		}
+
+		[TestMethod]
+		public void MinParts()
+		{
+			Prop.ForAll(
+					ArbitraryVector4,
+					ArbitraryVector4,
+					static (a, b) =>
+					{
+						Vector4 min = a.MinParts(b);
+						return min.X <= a.X && min.X <= b.X && min.Y <= a.Y && min.Y <= b.Y &&
+							min.Z <= a.Z && min.Z <= b.Z && min.T <= a.T && min.T <= b.T;
+					}
+				).QuickCheckThrowOnFailure();
+		}
+		[TestMethod]
+		public void MaxParts()
+		{
+			Prop.ForAll(
+					ArbitraryVector4,
+					ArbitraryVector4,
+					static (a, b) =>
+					{
+						Vector4 min = a.MaxParts(b);
+						return min.X >= a.X && min.X >= b.X && min.Y >= a.Y && min.Y >= b.Y &&
+							min.Z >= a.Z && min.Z >= b.Z && min.T >= a.T && min.T >= b.T;
+					}
+				).QuickCheckThrowOnFailure();
+		}
 	}
 }

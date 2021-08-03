@@ -7,7 +7,7 @@ namespace AoC.Library
 {
 	public static class Vector
 	{
-		private static T FromArray<T>(IReadOnlyList<long> array) where T : IVector<T> => array.Count switch
+		internal static T FromArray<T>(IReadOnlyList<long> array) where T : IVector<T> => array.Count switch
 		{
 			2 => (T)(object)new Vector2(array[0], array[1]),
 			3 => (T)(object)new Vector3(array[0], array[1], array[2]),
@@ -22,6 +22,12 @@ namespace AoC.Library
 			Zero<T>().NeighborsMoore();
 		public static IEnumerable<T> DirectionsVonNeumann<T>() where T : struct, IVector<T> =>
 			Zero<T>().NeighborsVonNeumann();
+		public static IEnumerable<T> Directions<T>(NeighborhoodKind kind) where T : struct, IVector<T> => kind switch
+		{
+			NeighborhoodKind.Moore => DirectionsMoore<T>(),
+			NeighborhoodKind.VonNeumann => DirectionsVonNeumann<T>(),
+			_ => throw new ArgumentException("Invalid neighborhood kind"),
+		};
 
 		public static IEnumerable<T> NeighborsMoore<T>(this T v, long range = 1) where T : IVector<T> =>
 			v.NeighborsMooreRecursive(range, new List<long>());
@@ -82,6 +88,13 @@ namespace AoC.Library
 				}
 			}
 		}
+
+		public static IEnumerable<T> Neighbors<T>(this T v, NeighborhoodKind kind, long range = 1) where T : struct, IVector<T> => kind switch
+		{
+			NeighborhoodKind.Moore => v.NeighborsMoore(range),
+			NeighborhoodKind.VonNeumann => v.NeighborsVonNeumann(range),
+			_ => throw new ArgumentException("Invalid neighborhood kind"),
+		};
 
 		public static long ManhattanDistance<T>(this T vector, in T other) where T : IVector<T>
 		{
@@ -145,6 +158,25 @@ namespace AoC.Library
 			for (long i = 0; i < vector.Count; i++)
 			{
 				t[i] = -vector[i];
+			}
+			return FromArray<T>(t);
+		}
+
+		public static T MinParts<T>(this T vector, in T other) where T : IVector<T>
+		{
+			long[] t = new long[vector.Count];
+			for (long i = 0; i < vector.Count; i++)
+			{
+				t[i] = Math.Min(vector[i], other[i]);
+			}
+			return FromArray<T>(t);
+		}
+		public static T MaxParts<T>(this T vector, in T other) where T : IVector<T>
+		{
+			long[] t = new long[vector.Count];
+			for (long i = 0; i < vector.Count; i++)
+			{
+				t[i] = Math.Max(vector[i], other[i]);
 			}
 			return FromArray<T>(t);
 		}
