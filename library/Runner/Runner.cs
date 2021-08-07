@@ -65,7 +65,7 @@ namespace AoC.Library
 				return;
 			}
 
-			string input = File.ReadAllText(inputFile);
+			string input = File.ReadAllText(inputFile).TrimEnd();
 
 			if (Assembly.GetCallingAssembly() is Assembly calling)
 			{
