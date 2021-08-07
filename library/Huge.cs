@@ -18,20 +18,22 @@ namespace AoC.Library
 	{
 		private const long ProgressionTestLength = 5L;
 
-		public static long TakeSteps(long steps, Func<long, long> update, HugeSearchPattern pattern = HugeSearchPattern.All)
+		public static long TakeSteps<TState>(long steps, TState state, Func<TState, long, TState> update, Func<TState, long, long> getResult, HugeSearchPattern pattern = HugeSearchPattern.All)
+			where TState : notnull, IEquatable<TState>, ICloneable
 		{
-			IDictionary<long, long> seen = new Dictionary<long, long>();
+			IDictionary<TState, long> seen = new Dictionary<TState, long>();
 			Queue<long> previous = new Queue<long>();
 
 			long? current = null;
 			for (long i = 0L; i < steps; i++)
 			{
-				current = update(i);
+				state = update(state, i);
+				current = getResult(state, i);
 
 				// Period
 				if (pattern.HasFlag(HugeSearchPattern.Period))
 				{
-					if (seen.TryGetValue(current.Value, out long stepsToPrevious))
+					if (seen.TryGetValue(state, out long stepsToPrevious))
 					{
 						long oldI = i;
 						i = steps - ((steps - stepsToPrevious) % (i - stepsToPrevious));
@@ -39,7 +41,7 @@ namespace AoC.Library
 					}
 					else
 					{
-						seen.Add(current.Value, i);
+						seen.Add((TState)state.Clone(), i);
 					}
 				}
 
