@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace AoC.Library
 {
@@ -29,6 +31,11 @@ namespace AoC.Library
 
 		public override string ToString() =>
 			Vector.AsString(this);
+
+		public IEnumerator<long> GetEnumerator() =>
+			((IEnumerable<long>)new[] { X, Y }).GetEnumerator();
+		IEnumerator IEnumerable.GetEnumerator() =>
+			GetEnumerator();
 
 		public static Vector2 operator +(Vector2 a, Vector2 b) =>
 			a.Add(b);

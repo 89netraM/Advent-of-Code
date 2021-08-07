@@ -26,6 +26,8 @@ namespace AoC.Library
 
 		public long NeighborhoodRange { get; set; } = 1L;
 
+		public (TCoord min, TCoord max)? ConfinementBounds { get; set; } = null;
+
 		private IDictionary<TState, Rule> rules;
 
 		public TState DefaultState { get; set; } = default;
@@ -63,23 +65,74 @@ namespace AoC.Library
 			long totalNeighborCount = Vector.Zero<TCoord>().Neighbors(Neighborhood, NeighborhoodRange).Count();
 
 			Dictionary<TCoord, Dictionary<TState, long>> counts = new Dictionary<TCoord, Dictionary<TState, long>>();
+			Dictionary<TState, long> defaultNeighborCounts = new Dictionary<TState, long>();
+			foreach (TState state in Enum.GetValues<TState>())
+			{
+				defaultNeighborCounts.Add(state, state.Equals(DefaultState) ? totalNeighborCount : 0L);
+			}
+
+			if (ConfinementBounds is (TCoord min, TCoord max))
+			{
+				LinkedList<long> taken = new LinkedList<long>();
+
+				void FillCountsRecursive()
+				{
+					if (taken.Count < min.Count - 2)
+					{
+						for (long i = min[min.Count - taken.Count - 1]; i <= max[min.Count - taken.Count - 1]; i++)
+						{
+							taken.AddFirst(i);
+							FillCountsRecursive();
+							taken.RemoveFirst();
+						}
+					}
+					else
+					{
+						long[] coordArray = new long[min.Count];
+						taken.CopyTo(coordArray, 2);
+						for (long y = min[1]; y <= max[1]; y++)
+						{
+							coordArray[1] = y;
+							for (long x = min[0]; x <= max[0]; x++)
+							{
+								coordArray[0] = x;
+								counts.Add(Vector.FromArray<TCoord>(coordArray), new Dictionary<TState, long>(defaultNeighborCounts));
+							}
+						}
+					}
+				}
+
+				if (min.Count > 1)
+				{
+					FillCountsRecursive();
+				}
+				else
+				{
+					for (long[] coordArray = new [] { min[0] }; coordArray[0] <= max[0]; coordArray[0]++)
+					{
+						counts.Add(Vector.FromArray<TCoord>(coordArray), new Dictionary<TState, long>(defaultNeighborCounts));
+					}
+				}
+			}
+
 			foreach (KeyValuePair<TCoord, TState> kvp in current)
 			{
 				foreach (TCoord neighbor in kvp.Key.Neighbors(Neighborhood, NeighborhoodRange))
 				{
-					Dictionary<TState, long>? neighborCounts;
-					if (!counts.TryGetValue(neighbor, out neighborCounts))
+					if (!(ConfinementBounds is (TCoord, TCoord) cb) ||
+						(cb.min.Zip(neighbor).All(static p => p.Item1 <= p.Item2) && cb.max.Zip(neighbor).All(static p => p.Item1 >= p.Item2)))
 					{
-						neighborCounts = new Dictionary<TState, long>
+						Dictionary<TState, long>? neighborCounts;
+						if (!counts.TryGetValue(neighbor, out neighborCounts))
 						{
-							[DefaultState] = totalNeighborCount,
-						};
-						counts.Add(neighbor, neighborCounts);
-					}
+							neighborCounts = new Dictionary<TState, long>(defaultNeighborCounts);
+							counts.Add(neighbor, neighborCounts);
+						}
 
-					neighborCounts[DefaultState]--;
-					neighborCounts.TryGetValue(kvp.Value, out long neighborCount);
-					neighborCounts[kvp.Value] = neighborCount + 1;
+						neighborCounts[DefaultState]--;
+						neighborCounts.TryGetValue(kvp.Value, out long neighborCount);
+						neighborCounts[kvp.Value] = neighborCount + 1;
+					}
 				}
 			}
 
@@ -146,7 +199,7 @@ namespace AoC.Library
 		public string ToString(IReadOnlyDictionary<TState, char> stateChars)
 		{
 			StringBuilder sb = new StringBuilder();
-			var (min, max) = Bounds();
+			var (min, max) = ConfinementBounds ?? Bounds();
 			LinkedList<long> taken = new LinkedList<long>();
 
 			void ToStringRecursive()
@@ -167,7 +220,10 @@ namespace AoC.Library
 				}
 				else
 				{
-					sb.AppendLine($"(.., .., {String.Join(", ", taken)})");
+					if (min.Count > 2)
+					{
+						sb.AppendLine($"(…, …, {String.Join(", ", taken)})");
+					}
 					long[] coordArray = new long[min.Count];
 					taken.CopyTo(coordArray, 2);
 					for (long y = min[1]; y <= max[1]; y++)
@@ -187,7 +243,18 @@ namespace AoC.Library
 				}
 			}
 
-			ToStringRecursive();
+			if (min.Count > 1)
+			{
+				ToStringRecursive();
+			}
+			else
+			{
+				for (long[] coordArray = new [] { min[0] }; coordArray[0] <= max[0]; coordArray[0]++)
+				{
+					TCoord coord = Vector.FromArray<TCoord>(coordArray);
+					sb.Append(stateChars.TryGetValue(current.TryGetValue(coord, out TState state) ? state : DefaultState, out char c) ? c : ' ');
+				}
+			}
 
 			return sb.ToString();
 		}
