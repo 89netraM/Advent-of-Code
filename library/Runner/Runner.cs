@@ -24,7 +24,7 @@ namespace AoC.Library
 			{
 				if (args.Length == 1)
 				{
-					if (!(Int32.TryParse(args[1], out part)))
+					if (!(Int32.TryParse(args[0], out part)))
 					{
 						Console.WriteLine("When given one argument, it must be an integer representing the part.");
 						return;
