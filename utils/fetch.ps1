@@ -8,7 +8,7 @@ param (
 	$Day,
 	[Parameter(Position = 2)]
 	[string]
-	$Language = "csx"
+	$Language = "cs"
 )
 
 if (!$PSBoundParameters.ContainsKey("Year")) {
@@ -29,20 +29,27 @@ if (!(Test-Path $dayPath)) {
 }
 
 try {
-	$headers = @{"cookie" = (Get-Content "$basepath\utils\aoccookie") };
+	$headers = @{ "cookie" = (Get-Content "$basepath\utils\aoccookie") };
 
 	try {
 		Invoke-WebRequest -Headers $headers -Uri "https://adventofcode.com/$Year/day/$Day/input" -OutFile "$dayPath\input.txt";
-	
+
+		$sourceFile = "$dayPath\Day$Day.$Language";
+
 		$html = New-Object -ComObject "HTMLFile";
 		$result = Invoke-WebRequest -Headers $headers -Uri "https://adventofcode.com/$Year/day/$Day";
 		$html.write([System.Text.Encoding]::Unicode.GetBytes($result.Content));
 		$description = $html.body.innerText -split "`r`n";
-		$description[15..($description.Length - 4)] | ForEach-Object { "// $_" } | Out-File -Path "$dayPath\1.$Language";
+		$description[15..($description.Length - 4)] | ForEach-Object { "// $_" } | Out-File -Path $sourceFile;
+
+		if (Test-Path "$basepath\utils\templates\template.$Language") {
+			$template = Get-Content "$basepath\utils\templates\template.$Language" -Raw;
+			$template -ireplace '\$year', "$Year" -ireplace '\$day', "$Day" | Out-File -Path $sourceFile -Append;
+		}
 
 		Set-Location -Path $dayPath;
 
-		code "$dayPath\1.$Language";
+		code $sourceFile;
 	}
 	catch {
 		Write-Error "Failed to fetch the description and input for $Year/$Day";
