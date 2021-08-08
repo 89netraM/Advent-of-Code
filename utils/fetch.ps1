@@ -44,7 +44,7 @@ try {
 
 		if (Test-Path "$basepath\utils\templates\template.$Language") {
 			$template = Get-Content "$basepath\utils\templates\template.$Language" -Raw;
-			$template -ireplace '\$year', "$Year" -ireplace '\$day', "$Day" | Out-File -Path $sourceFile -Append;
+			$template -ireplace '\$year', "$Year" -ireplace '\$day', "$Day" | Out-File -Path $sourceFile -Append -NoNewline;
 		}
 
 		Set-Location -Path $dayPath;
