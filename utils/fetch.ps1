@@ -32,7 +32,7 @@ try {
 	$headers = @{ "cookie" = (Get-Content "$basepath\utils\aoccookie") };
 
 	try {
-		(Invoke-WebRequest -Headers $headers -Uri "https://adventofcode.com/$Year/day/$Day/input").Content | Out-File -Path "$dayPath\input.txt";
+		(Invoke-WebRequest -Headers $headers -Uri "https://adventofcode.com/$Year/day/$Day/input").Content | Out-File -Path "$dayPath\input.txt" -NoNewline;
 
 		$sourceFile = "$dayPath\Day$Day.$Language";
 
