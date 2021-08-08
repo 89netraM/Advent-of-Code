@@ -18,53 +18,52 @@ namespace AoC.Year2017
 
 		private static Vector2? PositionFromValue(int targetValue)
 		{
-			for (int i = 0; true; i++)
+			int side = (int)Math.Ceiling(Math.Sqrt(targetValue));
+			side += side % 2 == 1 ? 0 : 1;
+			int i = (side - 1) / 2;
+			int value = (int)Math.Pow(side, 2);
+			if (targetValue <= value)
 			{
-				int value = (int)Math.Pow(1 + 2 * i, 2);
-				if (targetValue <= value)
+				int x = i;
+				int y = i;
+				for (int j = 1; j < side; j++)
 				{
-					int x = i;
-					int y = i;
-					int ringSide = 1 + i * 2;
-					for (int j = 1; j < ringSide; j++)
+					if (targetValue == value)
 					{
-						if (targetValue == value)
-						{
-							return new Vector2(x, y);
-						}
-						x--;
-						value--;
+						return new Vector2(x, y);
 					}
-					for (int j = 1; j < ringSide; j++)
+					x--;
+					value--;
+				}
+				for (int j = 1; j < side; j++)
+				{
+					if (targetValue == value)
 					{
-						if (targetValue == value)
-						{
-							return new Vector2(x, y);
-						}
-						y--;
-						value--;
+						return new Vector2(x, y);
 					}
-					for (int j = 1; j < ringSide; j++)
+					y--;
+					value--;
+				}
+				for (int j = 1; j < side; j++)
+				{
+					if (targetValue == value)
 					{
-						if (targetValue == value)
-						{
-							return new Vector2(x, y);
-						}
-						x++;
-						value--;
+						return new Vector2(x, y);
 					}
-					for (int j = 1; j < ringSide; j++)
+					x++;
+					value--;
+				}
+				for (int j = 1; j < side; j++)
+				{
+					if (targetValue == value)
 					{
-						if (targetValue == value)
-						{
-							return new Vector2(x, y);
-						}
-						y++;
-						value--;
+						return new Vector2(x, y);
 					}
-					return null;
+					y++;
+					value--;
 				}
 			}
+			return null;
 		}
 
 		[Part(2)]
