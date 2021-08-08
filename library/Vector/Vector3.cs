@@ -6,6 +6,17 @@ namespace AoC.Library
 {
 	public readonly struct Vector3 : IVector<Vector3>
 	{
+		public static Vector3 Zero { get; } = Vector.Zero<Vector3>();
+		public static Vector3 UnitX { get; } = new Vector3(1, 0, 0);
+		public static Vector3 UnitY { get; } = new Vector3(0, 1, 0);
+		public static Vector3 UnitZ { get; } = new Vector3(0, 0, 1);
+		public static Vector3 Up { get; } = new Vector3(0, -1, 0);
+		public static Vector3 Down { get; } = new Vector3(0, 1, 0);
+		public static Vector3 Left { get; } = new Vector3(-1, 0, 0);
+		public static Vector3 Right { get; } = new Vector3(1, 0, 0);
+		public static Vector3 Forward { get; } = new Vector3(0, 0, -1);
+		public static Vector3 Backward { get; } = new Vector3(0, 0, 1);
+
 		long IVector<Vector3>.Count => 3;
 		long IVector<Vector3>.this[long index] => index switch
 		{

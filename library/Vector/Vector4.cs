@@ -6,6 +6,12 @@ namespace AoC.Library
 {
 	public readonly struct Vector4 : IVector<Vector4>
 	{
+		public static Vector4 Zero { get; } = Vector.Zero<Vector4>();
+		public static Vector4 UnitX { get; } = new Vector4(1, 0, 0, 0);
+		public static Vector4 UnitY { get; } = new Vector4(0, 1, 0, 0);
+		public static Vector4 UnitZ { get; } = new Vector4(0, 0, 1, 0);
+		public static Vector4 UnitW { get; } = new Vector4(0, 0, 0, 1);
+
 		long IVector<Vector4>.Count => 4;
 		long IVector<Vector4>.this[long index] => index switch
 		{
