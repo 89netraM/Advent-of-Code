@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace AoC.Library
 {
@@ -17,6 +18,29 @@ namespace AoC.Library
 		public static Vector3 Forward { get; } = new Vector3(0, 0, -1);
 		public static Vector3 Backward { get; } = new Vector3(0, 0, 1);
 
+		public static Vector3 HexagonalFlatNorth { get; } = new Vector3(0, 1, -1);
+		public static Vector3 HexagonalFlatNorthEast { get; } = new Vector3(1, 0, -1);
+		public static Vector3 HexagonalFlatNorthWest { get; } = new Vector3(-1, 1, 0);
+		public static Vector3 HexagonalFlatSouthEast { get; } = new Vector3(1, -1, 0);
+		public static Vector3 HexagonalFlatSouthWest { get; } = new Vector3(-1, 0, 1);
+		public static Vector3 HexagonalFlatSouth { get; } = new Vector3(0, -1, 1);
+
+		public static Vector3 HexagonalPointyEast { get; } = HexagonalFlatSouthEast;
+		public static Vector3 HexagonalPointyNorthEast { get; } = HexagonalFlatNorthEast;
+		public static Vector3 HexagonalPointySouthEast { get; } = HexagonalFlatSouth;
+		public static Vector3 HexagonalPointyNorthWest { get; } = HexagonalFlatNorth;
+		public static Vector3 HexagonalPointySouthWest { get; } = HexagonalFlatSouthWest;
+		public static Vector3 HexagonalPointyWest { get; } = HexagonalFlatNorthWest;
+
+		public static IImmutableList<Vector3> HexagonalDirections { get; } = ImmutableArray.Create(
+			HexagonalFlatSouthEast,
+			HexagonalFlatNorthEast,
+			HexagonalFlatNorth,
+			HexagonalFlatNorthWest,
+			HexagonalFlatSouthWest,
+			HexagonalFlatSouth
+		);
+
 		long IVector<Vector3>.Count => 3;
 		long IVector<Vector3>.this[long index] => index switch
 		{
@@ -32,6 +56,36 @@ namespace AoC.Library
 
 		public Vector3(long x, long y, long z) =>
 			(X, Y, Z) = (x, y, z);
+
+		public IEnumerable<Vector3> HexagonalNeighbors(long range = 1)
+		{
+			for (long k = 1; k <= range; k++)
+			{
+				foreach (Vector3 v in HexagonalRing(k))
+				{
+					yield return v;
+				}
+			}
+		}
+		public IEnumerable<Vector3> HexagonalRing(long radius)
+		{
+			Vector3 cube = this + HexagonalDirections[4] * radius;
+
+			for (int i = 0; i < 6; i++)
+			{
+				for (long j = 0; j < radius; j++)
+				{
+					yield return cube;
+					cube += HexagonalDirections[i];
+				}
+			}
+		}
+
+		public long HexagonalManhattanDistance(Vector3 other) =>
+			this.ManhattanDistance(other) / 2;
+
+		public bool IsHexagonal() =>
+			X + Y + Z == 0;
 
 		public bool Equals(Vector3 other) =>
 			Vector.Equals(this, other);

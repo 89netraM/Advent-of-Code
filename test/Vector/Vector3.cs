@@ -10,6 +10,8 @@ namespace AoC.Library.Test
 	{
 		public static Arbitrary<Vector3> ArbitraryVector3 { get; } =
 			Arb.From<Tuple<long, long, long>>().Convert(static p => new Vector3(p.Item1, p.Item2, p.Item3), static v => new(v.X, v.Y, v.Z));
+		public static Arbitrary<Vector3> ArbitraryHexagonalVector3 { get; } =
+			ArbitraryVector3.Filter(static v => v.IsHexagonal());
 
 		[TestMethod]
 		public void NeighborsMoore_MaximumIsRange()
@@ -86,6 +88,62 @@ namespace AoC.Library.Test
 		}
 
 		[TestMethod]
+		public void HexagonalRing_DistanceIsRange()
+		{
+			Prop.ForAll(
+					ArbitraryHexagonalVector3,
+					Utils.PositiveLong,
+					static (v, r) => v.HexagonalRing(r).All(n => v.HexagonalManhattanDistance(n) == r)
+				).QuickCheckThrowOnFailure();
+		}
+		[TestMethod]
+		public void HexagonalRing_Distinct()
+		{
+			Prop.ForAll(
+					ArbitraryHexagonalVector3,
+					Utils.PositiveLong,
+					static (v, r) => v.HexagonalRing(r).Distinct().Count() == v.HexagonalRing(r).Count()
+				).QuickCheckThrowOnFailure();
+		}
+		[TestMethod]
+		public void HexagonalRing_NeighborCount()
+		{
+			Prop.ForAll(
+					ArbitraryHexagonalVector3,
+					Utils.PositiveLong,
+					static (v, r) => v.HexagonalRing(r).Count() == 6 * r
+				).QuickCheckThrowOnFailure();
+		}
+
+		[TestMethod]
+		public void HexagonalNeighbors_MaximumIsRange()
+		{
+			Prop.ForAll(
+					ArbitraryHexagonalVector3,
+					Utils.PositiveLong,
+					static (v, r) => v.HexagonalNeighbors(r).All(n => v.HexagonalManhattanDistance(n) <= r)
+				).QuickCheckThrowOnFailure();
+		}
+		[TestMethod]
+		public void HexagonalNeighbors_Distinct()
+		{
+			Prop.ForAll(
+					ArbitraryHexagonalVector3,
+					Utils.PositiveLong,
+					static (v, r) => v.HexagonalNeighbors(r).Distinct().Count() == v.HexagonalNeighbors(r).Count()
+				).QuickCheckThrowOnFailure();
+		}
+		[TestMethod]
+		public void HexagonalNeighbors_NeighborCount()
+		{
+			Prop.ForAll(
+					ArbitraryHexagonalVector3,
+					Utils.PositiveLong,
+					static (v, r) => v.HexagonalNeighbors(r).Count() == 3 * r * (r + 1)
+				).QuickCheckThrowOnFailure();
+		}
+
+		[TestMethod]
 		public void ManhattanDistance()
 		{
 			Assert.AreEqual(0, Vector.Zero<Vector3>().ManhattanDistance(Vector.Zero<Vector3>()));
@@ -100,6 +158,15 @@ namespace AoC.Library.Test
 			Assert.AreEqual(1.7321d, Vector.Zero<Vector3>().Distance(new Vector3(1, 1, 1)), 0.0001d);
 			Assert.AreEqual(1.7321d, Vector.Zero<Vector3>().Distance(new Vector3(1, -1, -1)), 0.0001d);
 			Assert.AreEqual(5.9161d, new Vector3(12, 1, -4).Distance(new Vector3(13, -2, 1)), 0.0001d);
+		}
+
+		[TestMethod]
+		public void HexagonalManhattanDistance()
+		{
+			Assert.AreEqual(0, Vector.Zero<Vector3>().HexagonalManhattanDistance(Vector.Zero<Vector3>()));
+			Assert.AreEqual(1, Vector.Zero<Vector3>().HexagonalManhattanDistance(new Vector3(1, 0, -1)));
+			Assert.AreEqual(1, Vector.Zero<Vector3>().HexagonalManhattanDistance(new Vector3(1, -1, 0)));
+			Assert.AreEqual(4, new Vector3(1, -2, 1).HexagonalManhattanDistance(new Vector3(2, 1, -3)));
 		}
 
 		[TestMethod]
