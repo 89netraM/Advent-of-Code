@@ -184,7 +184,7 @@ namespace AoC.Library.Test
 		[TestMethod]
 		public void CellularAutomaton_2018Day18Part1()
 		{
-			Dictionary<Vector2, Area> input = Input2018Day18.Split("\r\n")
+			Dictionary<Vector2, Area> input = Input2018Day18.Lines()
 				.SelectMany(static (l, y) => l.Select((c, x) => (c, coord: new Vector2(x, y))))
 				.ToDictionary(
 					static p => p.coord,

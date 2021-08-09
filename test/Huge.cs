@@ -161,7 +161,7 @@ namespace AoC.Library.Test
 			const long Steps = 1_000_000_000L;
 			long stepsTaken = 0L;
 
-			Dictionary<Vector2, Area> input = Input2018Day18.Split("\r\n")
+			Dictionary<Vector2, Area> input = Input2018Day18.Lines()
 				.SelectMany(static (l, y) => l.Select((c, x) => (c, coord: new Vector2(x, y))))
 				.ToDictionary(
 					static p => p.coord,
@@ -269,7 +269,7 @@ namespace AoC.Library.Test
 			const long Steps = 50_000_000_000L;
 			long stepsTaken = 0L;
 
-			string[] input = Input2018Day12.Split("\r\n");
+			string[] input = Input2018Day12.Lines();
 
 			Rule[] rules = input.Skip(2)
 				.Select(static l => new Rule(l[0] == '#', l[1] == '#', l[2] == '#', l[3] == '#', l[4] == '#', l[9] == '#'))
