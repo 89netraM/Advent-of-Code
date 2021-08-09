@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -185,7 +186,16 @@ namespace AoC.Library.Test
 		{
 			Dictionary<Vector2, Area> input = Input2018Day18.Split("\r\n")
 				.SelectMany(static (l, y) => l.Select((c, x) => (c, coord: new Vector2(x, y))))
-				.ToDictionary(static p => p.coord, static p => p.c switch { '.' => Area.Open, '|' => Area.Tree, '#' => Area.Lumberyard });
+				.ToDictionary(
+					static p => p.coord,
+					static p => p.c switch
+					{
+						'.' => Area.Open,
+						'|' => Area.Tree,
+						'#' => Area.Lumberyard,
+						_ => throw new Exception("Invalid character"),
+					}
+				);
 
 			CellularAutomaton<Vector2, Area> ca = new CellularAutomaton<Vector2, Area>(input)
 			{
