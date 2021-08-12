@@ -39,7 +39,7 @@ namespace AoC.Year2017
 	[Day(10)]
 	public class Day10
 	{
-		private class CircularArray : IEnumerable<int>
+		public class CircularArray : IEnumerable<int>
 		{
 			private readonly int[] array;
 
