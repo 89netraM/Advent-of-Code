@@ -30,21 +30,19 @@ namespace AoC.Year2017
 		public object Part2(string input)
 		{
 			int steps = int.Parse(input);
-
-			LinkedList<int> list = new LinkedList<int>();
-			var zero = list.AddFirst(0);
-			var current = zero;
+			int current = 0;
+			int afterZero = 0;
 
 			for (int i = 1; i <= 50000000; i++)
 			{
-				for (int j = 0; j < steps; j++)
+				current = MathM.Mod(current + steps, i) + 1;
+				if (current == 1)
 				{
-					current = current.Next ?? list.First;
+					afterZero = i;
 				}
-				current = list.AddAfter(current, i);
 			}
 
-			return (zero.Next ?? list.First).Value;
+			return afterZero;
 		}
 	}
 }
