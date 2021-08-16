@@ -87,6 +87,9 @@ namespace AoC.Library
 		public bool IsHexagonal() =>
 			X + Y + Z == 0;
 
+		public void Deconstruct(out long x, out long y, out long z) =>
+			(x, y, z) = (X, Y, Z);
+
 		public bool Equals(Vector3 other) =>
 			Vector.Equals(this, other);
 		public override bool Equals(object? obj) =>

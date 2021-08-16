@@ -30,6 +30,9 @@ namespace AoC.Library
 		public Vector4(long x, long y, long z, long t) =>
 			(X, Y, Z, T) = (x, y, z, t);
 
+		public void Deconstruct(out long x, out long y, out long z, out long t) =>
+			(x, y, z, t) = (X, Y, Z, T);
+
 		public bool Equals(Vector4 other) =>
 			Vector.Equals(this, other);
 		public override bool Equals(object? obj) =>

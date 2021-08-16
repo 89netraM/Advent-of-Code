@@ -197,5 +197,18 @@ namespace AoC.Library.Test
 					}
 				).QuickCheckThrowOnFailure();
 		}
+
+		[TestMethod]
+		public void Deconstructor()
+		{
+			const long X = 1;
+			const long Y = 2;
+			const long Z = 3;
+
+			var (x, y, z) = new Vector3(X, Y, Z);
+			Assert.AreEqual(X, x);
+			Assert.AreEqual(Y, y);
+			Assert.AreEqual(Z, z);
+		}
 	}
 }

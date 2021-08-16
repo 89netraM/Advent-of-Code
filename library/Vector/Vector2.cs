@@ -28,6 +28,9 @@ namespace AoC.Library
 		public Vector2(long x, long y) =>
 			(X, Y) = (x, y);
 
+		public void Deconstruct(out long x, out long y) =>
+			(x, y) = (X, Y);
+
 		public bool Equals(Vector2 other) =>
 			Vector.Equals(this, other);
 		public override bool Equals(object? obj) =>
