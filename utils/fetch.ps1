@@ -1,4 +1,4 @@
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName = "NoDelay")]
 param (
 	[Parameter(Position = 0)]
 	[int]
@@ -8,7 +8,14 @@ param (
 	$Day,
 	[Parameter(Position = 2)]
 	[string]
-	$Language = "cs"
+	$Language = "cs",
+	[Parameter(ParameterSetName = "Time")]
+	[ValidatePattern("\d{1,2}:\d{2}(:\d{2})?")]
+	[string]
+	$Time,
+	[Parameter(ParameterSetName = "Delay")]
+	[switch]
+	$Delay
 )
 
 if (!$PSBoundParameters.ContainsKey("Year")) {
@@ -26,6 +33,18 @@ if (!(Test-Path $yearPath)) {
 $dayPath = "$yearPath\$Day";
 if (!(Test-Path $dayPath)) {
 	New-Item -ItemType Directory -Force -Path $dayPath;
+}
+
+if ($Delay.IsPresent) {
+	$Time = "06:00";
+}
+
+if ($PSBoundParameters.ContainsKey("Time") -or $Delay.IsPresent) {
+	$timeSpan = New-TimeSpan -End $Time;
+	if ($timeSpan.TotalSeconds -gt 0.0) {
+		Write-Output "Will wait $($timeSpan.TotalSeconds) seconds until $Time";
+		Start-Sleep -Seconds $timeSpan.TotalSeconds;
+	}
 }
 
 try {
