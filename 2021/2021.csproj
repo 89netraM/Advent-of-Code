@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<RootNamespace>AoC.Year2021</RootNamespace>
+		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
+		<PackageReference Include="TextCopy" Version="4.3.1" />
+		<ProjectReference Include="..\library\library.csproj" />
+	</ItemGroup>
+
+</Project>
