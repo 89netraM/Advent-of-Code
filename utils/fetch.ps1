@@ -36,7 +36,7 @@ if (!(Test-Path $dayPath)) {
 }
 
 if ($Delay.IsPresent) {
-	$Time = "06:00";
+	$Time = "06:00:01";
 }
 
 if ($PSBoundParameters.ContainsKey("Time") -or $Delay.IsPresent) {
