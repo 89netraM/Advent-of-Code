@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using AoC.Library;
 
@@ -14,7 +13,7 @@ namespace AoC.Year2021
 		public object? Part1(string input)
 		{
 			var numbers = input.Split("\n\n").First().Split(",").Select(long.Parse).ToArray();
-			var boards = input.Split("\n\n").Skip(1).Select(b => new BingoBoard(b)).ToList();
+			var boards = input.Split("\n\n").Skip(1).Select(BingoBoard.Parse).ToList();
 
 			foreach (var number in numbers)
 			{
@@ -22,7 +21,7 @@ namespace AoC.Year2021
 				{
 					if (b.MarkNumber(number) is long[] row)
 					{
-						return b.UnmarkedNumbers() * number;
+						return b.SumOfUnmarkedNumbers() * number;
 					}
 				}
 			}
@@ -34,7 +33,7 @@ namespace AoC.Year2021
 		public object? Part2(string input)
 		{
 			var numbers = input.Split("\n\n").First().Split(",").Select(long.Parse).ToArray();
-			var boards = input.Split("\n\n").Skip(1).Select(b => new BingoBoard(b)).ToList();
+			var boards = input.Split("\n\n").Skip(1).Select(BingoBoard.Parse).ToList();
 
 			long left = boards.Count;
 			foreach (var number in numbers)
@@ -47,7 +46,7 @@ namespace AoC.Year2021
 						left--;
 						if (left == 0)
 						{
-							return b.UnmarkedNumbers() * number;
+							return b.SumOfUnmarkedNumbers() * number;
 						}
 						else
 						{
@@ -62,50 +61,71 @@ namespace AoC.Year2021
 		}
 	}
 
-	class BingoBoard
+	public class BingoBoard
 	{
-		public long[][] Numbers { get; }
+		public static BingoBoard Parse(string input)
+		{
+			var numbers = input.Lines()
+				.Select(static line => line.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(long.Parse).ToArray())
+				.ToArray();
+			BingoBoard board = new BingoBoard(numbers[0].Length, numbers.Length);
+			for (int y = 0; y < numbers.Length; y++)
+			{
+				for (int x = 0; x < numbers[y].Length; x++)
+				{
+					board.Numbers[x, y] = numbers[y][x];
+				}
+			}
+			return board;
+		}
+
+		public long[,] Numbers { get; }
 		public bool[,] Marks { get; }
 
-		public BingoBoard(string board)
+		public int Width => Numbers.GetLength(0);
+		public int Height => Numbers.GetLength(1);
+
+		public BingoBoard(int size) : this(new long[size, size]) { }
+		public BingoBoard(int width, int height) : this(new long[width, height]) { }
+		public BingoBoard(long[,] numbers) : this(numbers, new bool[numbers.GetLength(0), numbers.GetLength(1)]) { }
+		public BingoBoard(long[,] numbers, bool[,] marks)
 		{
-			Numbers = board.Lines()
-				.Select(line => line.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(long.Parse).ToArray())
-				.ToArray();
-			Marks = new bool[5, 5];
+			Numbers = numbers;
+			Marks = marks;
 		}
 
 		public long[]? MarkNumber(long number)
 		{
-			for (int i = 0; i < 5; i++)
+			for (int x = 0; x < Width; x++)
 			{
-				for (int j = 0; j < 5; j++)
+				for (int y = 0; y < Height; y++)
 				{
-					if (Numbers[i][j] == number)
+					if (Numbers[x, y] == number)
 					{
-						Marks[i, j] = true;
+						Marks[x, y] = true;
 
 						bool all = true;
-						List<long> row = new List<long>();
-						for (int k = 0; all && k < 5; k++)
+						long[] row = new long[Height];
+						for (int k = 0; all && k < Height; k++)
 						{
-							all &= Marks[i, k];
-							row.Add(Numbers[i][k]);
+							all &= Marks[x, k];
+							row[k] = Numbers[x, k];
 						}
 						if (all)
 						{
-							return row.ToArray();
+							return row;
 						}
+
 						all = true;
-						row.Clear();
-						for (int k = 0; all && k < 5; k++)
+						row = new long[Width];
+						for (int k = 0; all && k < Width; k++)
 						{
-							all &= Marks[k, j];
-							row.Add(Numbers[k][j]);
+							all &= Marks[k, y];
+							row[k] = Numbers[k, y];
 						}
 						if (all)
 						{
-							return row.ToArray();
+							return row;
 						}
 
 						return null;
@@ -116,16 +136,32 @@ namespace AoC.Year2021
 			return null;
 		}
 
-		public long UnmarkedNumbers()
+		public long SumOfMarkedNumbers()
 		{
 			long sum = 0;
-			for (int i = 0; i < 5; i++)
+			for (int x = 0; x < Width; x++)
 			{
-				for (int j = 0; j < 5; j++)
+				for (int y = 0; y < Height; y++)
 				{
-					if (!Marks[i, j])
+					if (Marks[x, y])
 					{
-						sum += Numbers[i][j];
+						sum += Numbers[x, y];
+					}
+				}
+			}
+			return sum;
+		}
+
+		public long SumOfUnmarkedNumbers()
+		{
+			long sum = 0;
+			for (int x = 0; x < Width; x++)
+			{
+				for (int y = 0; y < Height; y++)
+				{
+					if (!Marks[x, y])
+					{
+						sum += Numbers[x, y];
 					}
 				}
 			}
