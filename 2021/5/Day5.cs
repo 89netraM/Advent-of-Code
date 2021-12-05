@@ -13,10 +13,8 @@ namespace AoC.Year2021
 		public object Part1(string input)
 		{
 			Dictionary<Vector2, long> map = new Dictionary<Vector2, long>();
-			foreach (var line in input.Lines())
+			foreach (var (from, to) in input.Lines().Extract<(Vector2, Vector2)>(@"((\d+),(\d+)) -> ((\d+),(\d+))"))
 			{
-				var from = line.Extract<Vector2>(@"(\d+),(\d+) ->");
-				var to = line.Extract<Vector2>(@"-> (\d+),(\d+)");
 				if (from.X == to.X)
 				{
 					var f = from.MinParts(to);
@@ -45,17 +43,13 @@ namespace AoC.Year2021
 		public object Part2(string input)
 		{
 			Dictionary<Vector2, long> map = new Dictionary<Vector2, long>();
-			foreach (var line in input.Lines())
+			foreach (var (from, to) in input.Lines().Extract<(Vector2, Vector2)>(@"((\d+),(\d+)) -> ((\d+),(\d+))"))
 			{
-				var from = line.Extract<Vector2>(@"(\d+),(\d+) ->");
-				var to = line.Extract<Vector2>(@"-> (\d+),(\d+)");
-
 				Vector2 step = to - from;
 				step = new Vector2(step.X == 0 ? 0 : 1 * Math.Sign(step.X), step.Y == 0 ? 0 : 1 * Math.Sign(step.Y));
-				while (from != to)
+				for (Vector2 pos = from; pos != to; pos += step)
 				{
 					if (map.ContainsKey(from)) { map[from]++; } else { map.Add(from, 1); }
-					from += step;
 				}
 				if (map.ContainsKey(from)) { map[from]++; } else { map.Add(from, 1); }
 			}
