@@ -11,6 +11,7 @@
 		<PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
 		<PackageReference Include="TextCopy" Version="4.3.1" />
 		<ProjectReference Include="..\library\library.csproj" />
+		<PackageReference Include="RegExtract" Version="1.0.17" />
 	</ItemGroup>
 
 </Project>
