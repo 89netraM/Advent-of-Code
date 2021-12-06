@@ -37,39 +37,20 @@ namespace AoC.Year2021
 		public object Part2(string input)
 		{
 			var ages = input.Split(',').Select(long.Parse).GroupBy(Id).ToDictionary(static x => x.Key, static x => (long)x.Count());
-			for (long i = 0L; i <= 8L; i++)
+			long[] fishes = new long[9];
+			foreach (var kvp in ages)
 			{
-				if (!ages.ContainsKey(i))
-				{
-					ages.Add(i, 0L);
-				}
+				fishes[kvp.Key] = kvp.Value;
 			}
 
-			var ages2 = new Dictionary<long, long>();
+			int six = 6;
 			for (int i = 0; i < 256; i++)
 			{
-				for (long j = 0L; j <= 8L; j++)
-				{
-					ages2[j] = 0L;
-				}
-
-				for (long j = 8L; j >= 0L; j--)
-				{
-					if (j == 0)
-					{
-						ages2[8] += ages[j];
-						ages2[6] += ages[j];
-					}
-					else
-					{
-						ages2[j - 1] += ages[j];
-					}
-				}
-
-				(ages, ages2) = (ages2, ages);
+				six++;
+				fishes[MathM.Mod(six, fishes.Length)] += fishes[MathM.Mod(six + 2, fishes.Length)];
 			}
 
-			return ages.Sum(static x => x.Value);
+			return fishes.Sum(static c => c);
 		}
 	}
 }
