@@ -34,25 +34,15 @@ namespace AoC.Year2021
 			var crabs = input.Split(',').Select(long.Parse).ToArray();
 			var min = (int)crabs.Min();
 			var max = (int)crabs.Max();
-			long [,] dp = new long[crabs.Length, max - min + 1];
-			for (int i = 0; i < crabs.Length; i++)
-			{
-				for (int j = min; j <= max; j++)
-				{
-					if (i == 0)
-					{
-						dp[i, j - min] = Sum(Math.Abs(crabs[i] - j));
-					}
-					else
-					{
-						dp[i, j - min] = dp[i - 1, j - min] + Sum(Math.Abs(crabs[i] - j));
-					}
-				}
-			}
 			var minimum = long.MaxValue;
 			for (int j = min; j <= max; j++)
 			{
-				minimum = Math.Min(minimum, dp[crabs.Length - 1, j - min]);
+				long current = 0;
+				for (int i = 0; i < crabs.Length; i++)
+				{
+					current += Sum(Math.Abs(crabs[i] - j));
+				}
+				minimum = Math.Min(minimum, current);
 			}
 			return minimum;
 		}
