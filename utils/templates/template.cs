@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using AoC.Library;
 using static AoC.Library.Functional;
+using RegExtract;
 
 namespace AoC.Year$year
 {
