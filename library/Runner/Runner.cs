@@ -96,15 +96,23 @@ namespace AoC.Library
 					return;
 				}
 
-				object? output = partMethod.Invoke(clazz, new object[] { input });
-				if (output?.ToString()?.Trim() is string outputString)
+				try
 				{
-					Console.WriteLine(outputString);
-					ClipboardService.SetText(outputString);
+					object? output = partMethod.Invoke(clazz, new object[] { input });
+					if (output?.ToString()?.Trim() is string outputString)
+					{
+						Console.WriteLine(outputString);
+						ClipboardService.SetText(outputString);
+					}
+					else
+					{
+						Console.WriteLine($"No output from solution for day {day} part {part}.");
+					}
 				}
-				else
+				catch (TargetInvocationException e) when (e.InnerException is Exception inner)
 				{
-					Console.WriteLine($"No output from solution for day {day} part {part}.");
+					Console.WriteLine($"Exception while running solution for day {day} part {part}.");
+					Console.WriteLine(inner);
 				}
 			}
 		}
