@@ -42,18 +42,7 @@ namespace AoC.Year2021
 		{
 			var split = input.Split("\n\n");
 			var rules = split[1].Lines().Extract<(char, char, char)>(@"(\w)(\w) -> (\w)").ToDictionary(x => (x.Item1, x.Item2), x => x.Item3);
-			var pairCount = new Dictionary<(char a, char b), long>();
-			foreach (var pair in split[0].Zip(split[0].Skip(1), Curry<char, char, (char, char)>(Id)))
-			{
-				if (pairCount.ContainsKey(pair))
-				{
-					pairCount[pair] += 1;
-				}
-				else
-				{
-					pairCount[pair] = 1;
-				}
-			}
+			var pairCount = split[0].Zip(split[0].Skip(1), (a, b) => (a, b)).ToCounter();
 			var nextPairCount = new Dictionary<(char, char), long>();
 
 			for (int i = 0; i < 40; i++)
@@ -62,22 +51,8 @@ namespace AoC.Year2021
 				{
 					if (rules.TryGetValue(kvp.Key, out var middle))
 					{
-						if (nextPairCount.ContainsKey((kvp.Key.a, middle)))
-						{
-							nextPairCount[(kvp.Key.a, middle)] += kvp.Value;
-						}
-						else
-						{
-							nextPairCount[(kvp.Key.a, middle)] = kvp.Value;
-						}
-						if (nextPairCount.ContainsKey((middle, kvp.Key.b)))
-						{
-							nextPairCount[(middle, kvp.Key.b)] += kvp.Value;
-						}
-						else
-						{
-							nextPairCount[(middle, kvp.Key.b)] = kvp.Value;
-						}
+						nextPairCount.Increase((kvp.Key.a, middle), kvp.Value);
+						nextPairCount.Increase((middle, kvp.Key.b), kvp.Value);
 					}
 				}
 				(pairCount, nextPairCount) = (nextPairCount, pairCount);
@@ -87,24 +62,11 @@ namespace AoC.Year2021
 			var count = new Dictionary<char, long>();
 			foreach (var kvp in pairCount)
 			{
-				if (count.ContainsKey(kvp.Key.a))
-				{
-					count[kvp.Key.a] += kvp.Value;
-				}
-				else
-				{
-					count[kvp.Key.a] = kvp.Value;
-				}
+				count.Increase(kvp.Key.a, kvp.Value);
 			}
-			if (count.ContainsKey(split[0][^1]))
-			{
-				count[split[0][^1]] += 1;
-			}
-			else
-			{
-				count[split[0][^1]] = 1;
-			}
-			return count.Max(x => x.Value) - count.Min(x => x.Value);
+			count.Increase(split[0][^1]);
+			var common = count.MostCommon().ToArray();
+			return common[0].count - common[^1].count;
 		}
 	}
 }
