@@ -29,7 +29,7 @@ namespace AoC.Year2021
 					children => node.Type switch
 					{
 						0 => children.Sum(Evaluate),
-						1 => children.Aggregate(1L, static (p, n) => p * Evaluate(n)),
+						1 => children.Product(Evaluate),
 						2 => children.Min(Evaluate),
 						3 => children.Max(Evaluate),
 						5 => Evaluate(children[0]) > Evaluate(children[1]) ? 1L : 0L,

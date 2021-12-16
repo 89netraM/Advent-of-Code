@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -25,5 +26,18 @@ namespace AoC.Library
 			source.Zip(source.Skip(1), static (a, b) => (a, b))
 				.Zip(source.Skip(2), static (p, c) => (p.a, p.b, c))
 				.Zip(source.Skip(3), static (p, d) => (p.a, p.b, p.c, d));
+
+		/// <summary>
+		/// Computes the product of a sequence of <see cref="long"/> values.
+		/// </summary>
+		public static long Product(this IEnumerable<long> source) =>
+			source.Aggregate(1L, static (p, n) => p * n);
+
+		/// <summary>
+		/// Computes the product of the sequence of <see cref="long"/> values that are obtained by
+		/// invoking a transform function on each element of the input sequence.
+		/// </summary>
+		public static long Product<T>(this IEnumerable<T> source, Func<T, long> selector) =>
+			source.Select(selector).Product();
 	}
 }

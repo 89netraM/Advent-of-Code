@@ -25,5 +25,17 @@ namespace AoC.Library.Test
 		{
 			Assert.AreEqual(126L, sequence.Window4().Select(static p => p.Item1 + p.Item2 + p.Item3 + p.Item4).Sum());
 		}
+
+		[TestMethod]
+		public void Product_long()
+		{
+			Assert.AreEqual(362880L, sequence.Skip(1).Product());
+		}
+
+		[TestMethod]
+		public void Product_transformer()
+		{
+			Assert.AreEqual(3628800L, sequence.Skip(1).Product(static l => l + 1L));
+		}
 	}
 }
