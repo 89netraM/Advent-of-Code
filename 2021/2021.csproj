@@ -12,6 +12,7 @@
 		<PackageReference Include="TextCopy" Version="4.3.1" />
 		<ProjectReference Include="..\library\library.csproj" />
 		<PackageReference Include="RegExtract" Version="1.0.17" />
+		<PackageReference Include="OneOf" Version="3.0.205" />
 	</ItemGroup>
 
 </Project>
