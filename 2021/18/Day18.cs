@@ -31,9 +31,8 @@ namespace AoC.Year2021
 			{
 				for (int j = i; j < maths.Length; j++)
 				{
-					var math = maths[i] + maths[j];
-					math = math.Reduce();
-					max = Math.Max(max, math.Magnitude());
+					max = Math.Max(max, (maths[i] + maths[j]).Reduce().Magnitude());
+					max = Math.Max(max, (maths[j] + maths[i]).Reduce().Magnitude());
 				}
 			}
 			return max;
