@@ -42,8 +42,9 @@ namespace AoC.Year2021
 				}
 			}
 
-			for (int c = 0; c < 100; c++)
+			for (bool wasAdded = true; wasAdded;)
 			{
+				wasAdded = false;
 				for (int i = 1; i < scanners.Length; i++)
 				{
 					for (int j = 0; j < scanners.Length; j++)
@@ -52,7 +53,7 @@ namespace AoC.Year2021
 						{
 							foreach (var p in NumberedRotation(scanners[i], diff.rotation))
 							{
-								scanners[j].Add(p + diff.offset);
+								wasAdded |= scanners[j].Add(p + diff.offset);
 							}
 						}
 					}
@@ -101,8 +102,9 @@ namespace AoC.Year2021
 				scanners[i].Add(Vector3.Zero);
 			}
 
-			for (int c = 0; c < 100; c++)
+			for (bool wasAdded = true; wasAdded;)
 			{
+				wasAdded = false;
 				for (int i = 1; i < scanners.Length; i++)
 				{
 					for (int j = 0; j < scanners.Length; j++)
@@ -111,7 +113,7 @@ namespace AoC.Year2021
 						{
 							foreach (var p in NumberedRotation(scanners[i], diff.rotation))
 							{
-								scanners[j].Add(p + diff.offset);
+								wasAdded |= scanners[j].Add(p + diff.offset);
 							}
 						}
 					}
