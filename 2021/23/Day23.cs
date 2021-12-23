@@ -53,187 +53,99 @@ namespace AoC.Year2021
 					'.' => Occupant.Empty,
 					_ => throw new Exception("Invalid occupant"),
 				});
-			var reverseMap = new Dictionary<Occupant, Vector2[]>();
-			foreach (var kvp in map)
-			{
-				if (kvp.Value != Occupant.Empty)
-				{
-					if (reverseMap.TryGetValue(kvp.Value, out var pair))
-					{
-						pair[1] = kvp.Key;
-					}
-					else
-					{
-						reverseMap[kvp.Value] = new[] { kvp.Key, Vector2.Zero };
-					}
-				}
-			}
 
 			Console.CursorVisible = false;
 			Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-			long a = 0L;
-			long b = 0L;
-			long c = 0L;
-			long d = 0L;
-			long cost = 0L;
+			long[] steps = new long[] { 0L, 0L, 0L, 0L };
+			long cost() =>
+				steps[0] * CostPerMove(Occupant.Amber) +
+				steps[1] * CostPerMove(Occupant.Bronze) +
+				steps[2] * CostPerMove(Occupant.Copper) +
+				steps[3] * CostPerMove(Occupant.Desert);
 
-			var chosen = (o: Occupant.Amber, i: 0);
+			var chosen = map.First(p => p.Value == Occupant.Amber).Key;
+			var targets = FindTargets(map, chosen).OrderBy(static p => p.X).ToArray();
+			var chosenTarget = 0;
+
+			var printDict = new Dictionary<Vector2, (ConsoleColor, char?)>();
 
 			while (true)
 			{
-				var cPos = reverseMap[chosen.o][chosen.i];
-
-				int height = Print(map, cPos);
-				Console.WriteLine($"{a}, {b}, {c}, {d}");
-				Console.WriteLine(cost);
-
 				if (Done(map, Occupant.Amber) && Done(map, Occupant.Bronze) &&
 					Done(map, Occupant.Copper) && Done(map, Occupant.Desert))
 				{
-					Console.CursorTop--;
+					Print(map);
+					Console.WriteLine(String.Join(", ", steps));
 					break;
 				}
+
+				printDict.Clear();
+				for (int i = 0; i < targets.Length; i++)
+				{
+					printDict[targets[i]] = (i == chosenTarget ? ConsoleColor.Green : ConsoleColor.Blue, 'x');
+				}
+				printDict[chosen] = (ConsoleColor.Yellow, null);
+				int height = Print(map, printDict);
+				Console.WriteLine(String.Join(", ", steps));
+				height++;
+				Console.WriteLine(cost());
+				height++;
 
 				while (true)
 				{
 					var key = Console.ReadKey(true);
-					var target = cPos;
-					switch (key.Key)
+					var kind = (Occupant)(key.Key - ConsoleKey.A);
+					if (key.Key == ConsoleKey.Escape)
 					{
-						case ConsoleKey.UpArrow:
-							target = cPos + Vector2.Up;
-							break;
-						case ConsoleKey.DownArrow:
-							target = cPos + Vector2.Down;
-							break;
-						case ConsoleKey.LeftArrow:
-							target = cPos + Vector2.Left;
-							break;
-						case ConsoleKey.RightArrow:
-							target = cPos + Vector2.Right;
-							break;
-						case ConsoleKey.Escape:
-							Console.CursorVisible = true;
-							return null;
+						return null;
 					}
-					if (target != cPos)
+					else if (Occupant.Amber <= kind && kind <= Occupant.Desert)
 					{
-						if (map.TryGetValue(target, out var o) && o == Occupant.Empty)
+						chosen = map.First(p => p.Value == kind && p.Key != chosen).Key;
+						targets = FindTargets(map, chosen).OrderBy(static p => p.X).ToArray();
+						chosenTarget = 0;
+						break;
+					}
+					else if (key.Key is ConsoleKey.LeftArrow or ConsoleKey.RightArrow)
+					{
+						if (targets.Length > 0)
 						{
-							map[target] = chosen.o;
-							map[cPos] = Occupant.Empty;
-							reverseMap[chosen.o][chosen.i] = target;
-							switch (chosen.o)
-							{
-								case Occupant.Amber:
-									a++;
-									break;
-								case Occupant.Bronze:
-									b++;
-									break;
-								case Occupant.Copper:
-									c++;
-									break;
-								case Occupant.Desert:
-									d++;
-									break;
-							}
-							cost += CostPerMove(chosen.o);
+							chosenTarget = MathM.Mod(chosenTarget + ((int)key.Key - 38), targets.Length);
 							break;
 						}
 					}
-					else
+					else if (key.Key is ConsoleKey.Spacebar or ConsoleKey.Enter)
 					{
-						int k = key.Key - ConsoleKey.A;
-						if ((int)Occupant.Amber <= k && k <= (int)Occupant.Desert)
-						{
-							if (k == (int)chosen.o)
-							{
-								chosen.i = (chosen.i + 1) % 2;
-							}
-							else
-							{
-								chosen = ((Occupant)k, 0);
-							}
-							break;
-						}
+						steps[(int)map[chosen]] += chosen.ManhattanDistance(targets[chosenTarget]);
+						(map[chosen], map[targets[chosenTarget]]) = (Occupant.Empty, map[chosen]);
+						chosen = targets[chosenTarget];
+						targets = FindTargets(map, chosen).OrderBy(static p => p.X).ToArray();
+						chosenTarget = 0;
+						break;
 					}
 				}
-				Console.CursorTop -= height + 2;
+
+				Console.CursorTop -= height;
 			}
 
 			Console.CursorVisible = true;
-			return cost;
+			return cost();
 		}
 
 		[Part(1)]
-		public object Part1(string input)
-		{
-			var map = input.Lines()
-				.SelectMany(static (l, y) => l.Select((c, x) => (p: new Vector2(x, y), c)))
-				.Where(static p => p.c != '#' && p.c != ' ')
-				.Where(static p => p.p.Y >= 2 || restingSpots.Contains(p.p))
-				.ToImmutableDictionary(static p => p.p, static p => p.c switch
-				{
-					'A' => Occupant.Amber,
-					'B' => Occupant.Bronze,
-					'C' => Occupant.Copper,
-					'D' => Occupant.Desert,
-					'.' => Occupant.Empty,
-					_ => throw new Exception("Invalid occupant"),
-				});
-
-			BFS.Search(
-				new Map(map),
-				static map =>
-				{
-					var result = new List<(Map, long)>();
-					foreach (var kvp in map.Where(static kvp => kvp.Value != Occupant.Empty))
-					{
-						if (kvp.Key.Y == 1)
-						{
-							if (Home(map, kvp.Value) is Vector2 h && CanMoveTo(map, kvp.Key, h))
-							{
-								result.Add((
-									map.Move(kvp.Key, h),
-									kvp.Key.ManhattanDistance(h) * CostPerMove(kvp.Value)
-								));
-							}
-						}
-						else if (IsOnTop(map, kvp.Key))
-						{
-							foreach (var t in restingSpots)
-							{
-								if (CanMoveTo(map, kvp.Key, t))
-								{
-									result.Add((
-										map.Move(kvp.Key, t),
-										kvp.Key.ManhattanDistance(t) * CostPerMove(kvp.Value)
-									));
-								}
-							}
-						}
-					}
-					return result;
-				},
-				static map => Done(map, Occupant.Amber) && Done(map, Occupant.Bronze) &&
-					Done(map, Occupant.Copper) && Done(map, Occupant.Desert),
-				out var path
-			);
-			foreach (var (step, cost) in path)
-			{
-				Print(step, Vector2.Zero);
-				Console.WriteLine($"Cost: {cost}\n");
-			}
-			return path.Last().Item2;
-		}
+		public object Part1(string input) =>
+			Solve(input.Lines());
 
 		[Part(2)]
-		public object Part2(string input)
+		public object Part2(string input) =>
+			Solve(input.Lines().Take(3).Concat(new[] { "  #D#C#B#A#", "  #D#B#A#C#" }).Concat(input.Lines().Skip(3)), 4);
+
+		const int DefaultHeight = 2;
+
+		long? Solve(IEnumerable<string> input, int height = DefaultHeight)
 		{
-			var map = input.Lines().Take(3).Concat(new[] { "  #D#C#B#A#", "  #D#B#A#C#" }).Concat(input.Lines().Skip(3))
-				.SelectMany(static (l, y) => l.Select((c, x) => (p: new Vector2(x, y), c)))
+			var map = input.SelectMany(static (l, y) => l.Select((c, x) => (p: new Vector2(x, y), c)))
 				.Where(static p => p.c != '#' && p.c != ' ')
 				.Where(static p => p.p.Y >= 2 || restingSpots.Contains(p.p))
 				.ToImmutableDictionary(static p => p.p, static p => p.c switch
@@ -246,52 +158,42 @@ namespace AoC.Year2021
 					_ => throw new Exception("Invalid occupant"),
 				});
 
-			BFS.Search(
+			bool success = BFS.Search(
 				new Map(map),
-				static map =>
-				{
-					var result = new List<(Map, long)>();
-					foreach (var kvp in map.Where(static kvp => kvp.Value != Occupant.Empty))
-					{
-						if (kvp.Key.Y == 1)
-						{
-							if (Home(map, kvp.Value, 4) is Vector2 h && CanMoveTo(map, kvp.Key, h))
-							{
-								result.Add((
-									map.Move(kvp.Key, h),
-									kvp.Key.ManhattanDistance(h) * CostPerMove(kvp.Value)
-								));
-							}
-						}
-						else if (IsOnTop(map, kvp.Key))
-						{
-							foreach (var t in restingSpots)
-							{
-								if (CanMoveTo(map, kvp.Key, t))
-								{
-									result.Add((
-										map.Move(kvp.Key, t),
-										kvp.Key.ManhattanDistance(t) * CostPerMove(kvp.Value)
-									));
-								}
-							}
-						}
-					}
-					return result;
-				},
-				static map => Done(map, Occupant.Amber, 4) && Done(map, Occupant.Bronze, 4) &&
-					Done(map, Occupant.Copper, 4) && Done(map, Occupant.Desert, 4),
+				map => map.Where(static kvp => kvp.Value != Occupant.Empty)
+					.SelectMany(kvp =>
+						FindTargets(map, kvp.Key, height)
+						.Select(t => (
+							kvp.Key,
+							map.Move(kvp.Key, t),
+							kvp.Key.ManhattanDistance(t) * CostPerMove(kvp.Value)
+						))
+					),
+				map => Done(map, Occupant.Amber, height) && Done(map, Occupant.Bronze, height) &&
+					Done(map, Occupant.Copper, height) && Done(map, Occupant.Desert, height),
 				out var path
 			);
-			foreach (var (step, cost) in path)
+			if (success)
 			{
-				Print(step, Vector2.Zero);
-				Console.WriteLine($"Cost: {cost}\n");
+				Print(map);
+				Console.WriteLine($"Cost: 0\n");
+				foreach (var (from, step, cost) in path)
+				{
+					Print(step, new Dictionary<Vector2, (ConsoleColor, char?)>
+					{
+						[from] = (ConsoleColor.DarkGray, 'x'),
+					});
+					Console.WriteLine($"Cost: {cost}\n");
+				}
+				return path.Last().Item3;
 			}
-			return path.Last().Item2;
+			else
+			{
+				return null;
+			}
 		}
 
-		static int Print(IReadOnlyDictionary<Vector2, Occupant> map, Vector2 chosen)
+		static int Print(IReadOnlyDictionary<Vector2, Occupant> map, IReadOnlyDictionary<Vector2, (ConsoleColor, char?)> special = null)
 		{
 			var min = map.Keys.Aggregate((a, b) => a.MinParts(b));
 			var max = map.Keys.Aggregate((a, b) => a.MaxParts(b));
@@ -300,21 +202,49 @@ namespace AoC.Year2021
 			{
 				for (long x = min.X - 1; x <= max.X + 1; x++)
 				{
-					var p = new Vector2(x, y);
-					if (p == chosen)
+					if (y > 2)
 					{
-						Console.ForegroundColor = ConsoleColor.Yellow;
+						if (x <= min.X)
+						{
+							Console.Write(' ');
+							continue;
+						}
+						else if (max.X <= x)
+						{
+							break;
+						}
 					}
-					Console.Write(map.TryGetValue(p, out var occupant) ? occupant switch
+
+					var p = new Vector2(x, y);
+					bool colored = false;
+					char? c = null;
+					if (special?.TryGetValue(p, out var s) ?? false)
 					{
-						Occupant.Amber => 'A',
-						Occupant.Bronze => 'B',
-						Occupant.Copper => 'C',
-						Occupant.Desert => 'D',
-						Occupant.Empty => '.',
-						_ => throw new Exception("Invalid occupant"),
-					} : '#');
-					if (p == chosen)
+						Console.ForegroundColor = s.Item1;
+						colored = true;
+						c = s.Item2;
+					}
+					if (c is char cc)
+					{
+						Console.Write(cc);
+					}
+					else if (map.TryGetValue(p, out var o))
+					{
+						Console.Write(o switch
+						{
+							Occupant.Amber => 'A',
+							Occupant.Bronze => 'B',
+							Occupant.Copper => 'C',
+							Occupant.Desert => 'D',
+							Occupant.Empty => '.',
+							_ => throw new Exception("Invalid occupant"),
+						});
+					}
+					else
+					{
+						Console.Write(y == 1 && min.X <= x && x <= max.X ? '.' : '#');
+					}
+					if (colored)
 					{
 						Console.ResetColor();
 					}
@@ -325,9 +255,31 @@ namespace AoC.Year2021
 			return lines;
 		}
 
-		static bool Done(IReadOnlyDictionary<Vector2, Occupant> map, Occupant kind, int height = 2) =>
+		static IEnumerable<Vector2> FindTargets(IReadOnlyDictionary<Vector2, Occupant> map, Vector2 from, int height = DefaultHeight)
+		{
+			var targets = new List<Vector2>();
+			if (from.Y == 1)
+			{
+				if (Home(map, map[from], height) is Vector2 h && CanMoveTo(map, from, h))
+				{
+					yield return h;
+				}
+			}
+			else if (IsOnTop(map, from))
+			{
+				foreach (var t in restingSpots)
+				{
+					if (CanMoveTo(map, from, t))
+					{
+						yield return t;
+					}
+				}
+			}
+		}
+
+		static bool Done(IReadOnlyDictionary<Vector2, Occupant> map, Occupant kind, int height = DefaultHeight) =>
 			rooms[kind].Take(height).All(p => map[p] == kind);
-		static Vector2? Home(IReadOnlyDictionary<Vector2, Occupant> map, Occupant kind, int height = 2)
+		static Vector2? Home(IReadOnlyDictionary<Vector2, Occupant> map, Occupant kind, int height = DefaultHeight)
 		{
 			var rs = rooms[kind];
 			for (int i = 0; i < height; i++)
@@ -369,6 +321,11 @@ namespace AoC.Year2021
 			private readonly ImmutableDictionary<Vector2, Occupant> map;
 			private readonly int hash;
 
+			public Occupant this[Vector2 key] => map[key];
+			public IEnumerable<Vector2> Keys => map.Keys;
+			public IEnumerable<Occupant> Values => map.Values;
+			public int Count => map.Count;
+
 			public Map(ImmutableDictionary<Vector2, Occupant> map)
 			{
 				this.map = map;
@@ -386,22 +343,20 @@ namespace AoC.Year2021
 				this.hash = hash.ToHashCode();
 			}
 
-			public Occupant this[Vector2 key] => map[key];
-
-			public IEnumerable<Vector2> Keys => map.Keys;
-
-			public IEnumerable<Occupant> Values => map.Values;
-
-			public int Count => map.Count;
-
-			public bool ContainsKey(Vector2 key) =>
-				map.ContainsKey(key);
-
 			public Map Move(Vector2 from, Vector2 to) =>
 				new Map(map.SetItems(new KeyValuePair<Vector2, Occupant>[]{
 					new(from, Occupant.Empty),
 					new(to, map[from])
 				}));
+
+			public bool ContainsKey(Vector2 key) =>
+				map.ContainsKey(key);
+			public IEnumerator<KeyValuePair<Vector2, Occupant>> GetEnumerator() =>
+				map.GetEnumerator();
+			public bool TryGetValue(Vector2 key, [MaybeNullWhen(false)] out Occupant value) =>
+				map.TryGetValue(key, out value);
+			System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() =>
+				GetEnumerator();
 
 			public override bool Equals(object obj) =>
 				obj is Map other && Equals(other);
@@ -416,18 +371,8 @@ namespace AoC.Year2021
 				}
 				return true;
 			}
-
-			public IEnumerator<KeyValuePair<Vector2, Occupant>> GetEnumerator() =>
-				map.GetEnumerator();
-
 			public override int GetHashCode() =>
 				hash;
-
-			public bool TryGetValue(Vector2 key, [MaybeNullWhen(false)] out Occupant value) =>
-				map.TryGetValue(key, out value);
-
-			System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() =>
-				GetEnumerator();
 		}
 	}
 }
