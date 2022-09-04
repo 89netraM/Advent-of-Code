@@ -1,5 +1,6 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static AoC.Library.Functional;
 
 namespace AoC.Library.Test
 {
@@ -36,6 +37,34 @@ namespace AoC.Library.Test
 		public void Product_transformer()
 		{
 			Assert.AreEqual(3628800L, sequence.Skip(1).Product(static l => l + 1L));
+		}
+
+		[TestMethod]
+		public void AdjacentGroupBy_UniqueList()
+		{
+			Assert.AreEqual(sequence.Length, sequence.AdjacentGroupBy(Id).Count());
+		}
+
+		[TestMethod]
+		public void AdjacentGroupBy_NoAdjacentDuplicates()
+		{
+			var sequence = new[] { 0, 1, 2, 0, 1, 2 };
+			Assert.AreEqual(sequence.Length, sequence.AdjacentGroupBy(Id).Count());
+		}
+
+		[TestMethod]
+		public void AdjacentGroupBy_PairOfDuplicates()
+		{
+			var sequence = new[] { 0, 0, 1, 1, 2, 2 };
+			Assert.AreEqual(sequence.Length / 2, sequence.AdjacentGroupBy(Id).Count());
+		}
+
+		[TestMethod]
+		public void AdjacentGroupBy_EnumeratingGroup()
+		{
+			var sequence = new[] { 0, 0, 0, 0, 0 };
+			var onlyGroup = sequence.AdjacentGroupBy(Id).Single();
+			Assert.IsTrue(sequence.SequenceEqual(onlyGroup));
 		}
 	}
 }
