@@ -70,5 +70,29 @@ namespace AoC.Library.Test
 					p => Object.ReferenceEquals(memoizedToUpper(p), memoizedToUpper(p))
 				).QuickCheckThrowOnFailure();
 		}
+
+		[TestMethod]
+		public void Const_ShouldAlwaysReturnTheSameValue()
+		{
+			Prop.ForAll(
+					Arb.From<int>(),
+					p => {
+						var f = Const(p);
+						return p == f() && f() == f();
+					}
+				).QuickCheckThrowOnFailure();
+		}
+
+		[TestMethod]
+		public void Const_ShouldAlwaysReturnTheSameObject()
+		{
+			Prop.ForAll(
+					Arb.From<string>(),
+					p => {
+						var f = Const(p);
+						return Object.ReferenceEquals(f(), f());
+					}
+				).QuickCheckThrowOnFailure();
+		}
 	}
 }

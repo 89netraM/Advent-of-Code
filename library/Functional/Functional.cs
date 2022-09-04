@@ -20,5 +20,8 @@ namespace AoC.Library
 
 		public static Func<TA, TR> Memoize<TA, TR>(Func<TA, TR> f) where TA : notnull =>
 			new Memoization<TA, TR>(f);
+
+		public static Func<T> Const<T>(T value) =>
+			() => value;
 	}
 }

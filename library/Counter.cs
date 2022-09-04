@@ -17,7 +17,7 @@ namespace AoC.Library
 		/// Adds <paramref name="amount"/> to <paramref name="element"/>.
 		/// </summary>
 		public static void Increase<TElement>(this IDictionary<TElement, long> source, TElement element, long amount = 1L) where TElement : notnull =>
-			source[element] = (source.TryGetValue(element, out long v) ? v : 0L) + amount;
+			source.AddOrUpdate(element, amount, oldValue => oldValue + amount);
 		/// <summary>
 		/// Adds the elements of the other counter to this counter.
 		/// </summary>
