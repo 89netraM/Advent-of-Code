@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net7.0</TargetFramework>
+		<RootNamespace>AoC.Year2015</RootNamespace>
+		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
+		<PackageReference Include="TextCopy" Version="4.3.1" />
+		<ProjectReference Include="..\library\library.csproj" />
+		<PackageReference Include="RegExtract" Version="1.0.18" />
+	</ItemGroup>
+
+</Project>

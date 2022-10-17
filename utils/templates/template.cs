@@ -6,15 +6,20 @@ using AoC.Library;
 using static AoC.Library.Functional;
 using RegExtract;
 
-namespace AoC.Year$year
-{
-	[Day($day)]
-	public class Day$day
-	{
-		[Part(1)]
-		public object Part1(string input)
-		{
+namespace AoC.Year$year;
 
-		}
+[Day($day)]
+public class Day$day
+{
+	[Part(1)]
+	public object Part1(string input)
+	{
+
+	}
+
+	[Part(2)]
+	public object Part2(string input)
+	{
+		return null;
 	}
 }
