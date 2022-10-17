@@ -76,5 +76,20 @@ namespace AoC.Library.Test
 				Assert.AreEqual(i, array[i].Key);
 			}
 		}
+
+		[TestMethod]
+		public void SelectWhere_Struct()
+		{
+			Assert.IsTrue(sequence.SelectWhere(i => i % 2 == 0 ? (long?)(i / 2) : null).SequenceEqual(new long[] { 0, 1, 2, 3, 4 }));
+		}
+
+		[TestMethod]
+		public void SelectWhere_Class()
+		{
+			Assert.IsTrue(sequence.SelectWhere(i => i % 2 == 0 ? new LongBox(i / 2) : null)
+				.SequenceEqual(new[] { new LongBox(0), new LongBox(1), new LongBox(2), new LongBox(3), new LongBox(4) }));
+		}
+
+		private record LongBox(long Long);
 	}
 }
