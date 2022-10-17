@@ -26,17 +26,17 @@ public class Day3
 	public object Part2(string input)
 	{
 		long possible = 0;
-		var tris = new List<(long, long, long)>();
-		var cols = input.Lines().Extract<(long, long, long)>(@"(\d+)\s+(\d+)\s+(\d+)").ToArray();
-		for (int i = 0; i < cols.Length; i += 3)
+		foreach (var chunk in input.Lines().Extract<(long, long, long)>(@"(\d+)\s+(\d+)\s+(\d+)").Chunk(3))
 		{
-			tris.Add((cols[i + 0].Item1, cols[i + 1].Item1, cols[i + 2].Item1));
-			tris.Add((cols[i + 0].Item2, cols[i + 1].Item2, cols[i + 2].Item2));
-			tris.Add((cols[i + 0].Item3, cols[i + 1].Item3, cols[i + 2].Item3));
-		}
-		foreach (var (a, b, c) in tris)
-		{
-			if (a + b > c && b + c > a && c + a > b)
+			if (chunk[0].Item1 + chunk[1].Item1 > chunk[2].Item1 && chunk[1].Item1 + chunk[2].Item1 > chunk[0].Item1 && chunk[2].Item1 + chunk[0].Item1 > chunk[1].Item1)
+			{
+				possible++;
+			}
+			if (chunk[0].Item2 + chunk[1].Item2 > chunk[2].Item2 && chunk[1].Item2 + chunk[2].Item2 > chunk[0].Item2 && chunk[2].Item2 + chunk[0].Item2 > chunk[1].Item2)
+			{
+				possible++;
+			}
+			if (chunk[0].Item3 + chunk[1].Item3 > chunk[2].Item3 && chunk[1].Item3 + chunk[2].Item3 > chunk[0].Item3 && chunk[2].Item3 + chunk[0].Item3 > chunk[1].Item3)
 			{
 				possible++;
 			}
