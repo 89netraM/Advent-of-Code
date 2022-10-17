@@ -95,5 +95,11 @@ namespace AoC.Library
 			IEnumerator IEnumerable.GetEnumerator() =>
 				GetEnumerator();
 		}
+
+		/// <summary>
+		/// Returns a sequence where each value is paired with its index.
+		/// </summary>
+		public static IEnumerable<KeyValuePair<int, T>> Enumerate<T>(this IEnumerable<T> source) =>
+			source.Select(static (e, i) => new KeyValuePair<int, T>(i, e));
 	}
 }

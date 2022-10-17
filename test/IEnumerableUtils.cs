@@ -66,5 +66,15 @@ namespace AoC.Library.Test
 			var onlyGroup = sequence.AdjacentGroupBy(Id).Single();
 			Assert.IsTrue(sequence.SequenceEqual(onlyGroup));
 		}
+
+		[TestMethod]
+		public void Enumerate_ShouldEnumerate()
+		{
+			var array = sequence.Enumerate().ToArray();
+			for (int i = 0; i < array.Length; i++)
+			{
+				Assert.AreEqual(i, array[i].Key);
+			}
+		}
 	}
 }
