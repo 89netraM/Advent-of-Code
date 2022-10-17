@@ -12,6 +12,77 @@ namespace AoC.Library.Test
 			Arb.From<Tuple<long, long>>().Convert(static p => new Vector2(p.Item1, p.Item2), static v => new(v.X, v.Y));
 
 		[TestMethod]
+		public void Rotate_StandardDirectionsFromUp()
+		{
+			Assert.AreEqual(Vector2.Right, Vector2.Up.Rotate(1));
+			Assert.AreEqual(Vector2.Down, Vector2.Up.Rotate(2));
+			Assert.AreEqual(Vector2.Left, Vector2.Up.Rotate(3));
+			Assert.AreEqual(Vector2.Up, Vector2.Up.Rotate(4));
+
+			Assert.AreEqual(Vector2.Left, Vector2.Up.Rotate(-1));
+			Assert.AreEqual(Vector2.Down, Vector2.Up.Rotate(-2));
+			Assert.AreEqual(Vector2.Right, Vector2.Up.Rotate(-3));
+			Assert.AreEqual(Vector2.Up, Vector2.Up.Rotate(-4));
+		}
+		[TestMethod]
+		public void Rotate_StandardDirectionsFromRight()
+		{
+			Assert.AreEqual(Vector2.Down, Vector2.Right.Rotate(1));
+			Assert.AreEqual(Vector2.Left, Vector2.Right.Rotate(2));
+			Assert.AreEqual(Vector2.Up, Vector2.Right.Rotate(3));
+			Assert.AreEqual(Vector2.Right, Vector2.Right.Rotate(4));
+
+			Assert.AreEqual(Vector2.Up, Vector2.Right.Rotate(-1));
+			Assert.AreEqual(Vector2.Left, Vector2.Right.Rotate(-2));
+			Assert.AreEqual(Vector2.Down, Vector2.Right.Rotate(-3));
+			Assert.AreEqual(Vector2.Right, Vector2.Right.Rotate(-4));
+		}
+		[TestMethod]
+		public void Rotate_StandardDirectionsFromDown()
+		{
+			Assert.AreEqual(Vector2.Left, Vector2.Down.Rotate(1));
+			Assert.AreEqual(Vector2.Up, Vector2.Down.Rotate(2));
+			Assert.AreEqual(Vector2.Right, Vector2.Down.Rotate(3));
+			Assert.AreEqual(Vector2.Down, Vector2.Down.Rotate(4));
+
+			Assert.AreEqual(Vector2.Right, Vector2.Down.Rotate(-1));
+			Assert.AreEqual(Vector2.Up, Vector2.Down.Rotate(-2));
+			Assert.AreEqual(Vector2.Left, Vector2.Down.Rotate(-3));
+			Assert.AreEqual(Vector2.Down, Vector2.Down.Rotate(-4));
+		}
+		[TestMethod]
+		public void Rotate_StandardDirectionsFromLeft()
+		{
+			Assert.AreEqual(Vector2.Up, Vector2.Left.Rotate(1));
+			Assert.AreEqual(Vector2.Right, Vector2.Left.Rotate(2));
+			Assert.AreEqual(Vector2.Down, Vector2.Left.Rotate(3));
+			Assert.AreEqual(Vector2.Left, Vector2.Left.Rotate(4));
+
+			Assert.AreEqual(Vector2.Down, Vector2.Left.Rotate(-1));
+			Assert.AreEqual(Vector2.Right, Vector2.Left.Rotate(-2));
+			Assert.AreEqual(Vector2.Up, Vector2.Left.Rotate(-3));
+			Assert.AreEqual(Vector2.Left, Vector2.Left.Rotate(-4));
+		}
+		[TestMethod]
+		public void Rotate_Reversible()
+		{
+			Prop.ForAll(
+					ArbitraryVector2,
+					Arb.From<long>(),
+					static (v, q) => v.Rotate(q).Rotate(-q) == v
+				).QuickCheckThrowOnFailure();
+		}
+		[TestMethod]
+		public void Rotate_PreservesLength()
+		{
+			Prop.ForAll(
+					ArbitraryVector2,
+					Arb.From<long>(),
+					static (v, q) => Vector2.Zero.Distance(v.Rotate(q)) == Vector2.Zero.Distance(v)
+				).QuickCheckThrowOnFailure();
+		}
+
+		[TestMethod]
 		public void NeighborsMoore_MaximumIsRange()
 		{
 			Prop.ForAll(

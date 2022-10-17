@@ -14,7 +14,7 @@ public class Day1
 		var dir = Vector2.Up;
 		foreach (var (d, steps) in input.Split(", ").Extract<(char, long)>(@"(L|R)(\d+)"))
 		{
-			dir = d == 'L' ? new(-dir.Y, dir.X) : new(dir.Y, -dir.X);
+			dir = d == 'L' ? dir.Rotate(-1) : dir.Rotate(1);
 			pos += dir * steps;
 		}
 		return Vector2.Zero.ManhattanDistance(pos);
@@ -29,7 +29,7 @@ public class Day1
 		places.Add(pos);
 		foreach (var (d, steps) in input.Split(", ").Extract<(char, long)>(@"(L|R)(\d+)"))
 		{
-			dir = d == 'L' ? new(-dir.Y, dir.X) : new(dir.Y, -dir.X);
+			dir = d == 'L' ? dir.Rotate(-1) : dir.Rotate(1);
 			for (var s = 0; s < steps; s++)
 			{
 				pos += dir;

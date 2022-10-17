@@ -28,6 +28,36 @@ namespace AoC.Library
 		public Vector2(long x, long y) =>
 			(X, Y) = (x, y);
 
+		/// <summary>
+		/// Returns a vector rotated the given number of <paramref name="quarters" /> around origo.
+		/// </summary>
+		public Vector2 Rotate(long quarters)
+		{
+			return new Vector2(
+				X * qCos(quarters) - Y * qSin(quarters),
+				X * qSin(quarters) + Y * qCos(quarters));
+
+			#pragma warning disable CS8509
+			static long qCos(long quarters) =>
+				MathM.Mod(quarters, 4) switch
+				{
+					0 => 1,
+					1 => 0,
+					2 => -1,
+					3 => 0,
+				};
+
+			static long qSin(long quarters) =>
+				MathM.Mod(quarters, 4) switch
+				{
+					0 => 0,
+					1 => 1,
+					2 => 0,
+					3 => -1,
+				};
+			#pragma warning restore CS8509
+		}
+
 		public void Deconstruct(out long x, out long y) =>
 			(x, y) = (X, Y);
 
