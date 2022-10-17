@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net5.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<RootNamespace>AoC.Library</RootNamespace>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
-		<PackageReference Include="TextCopy" Version="4.3.1" />
+		<PackageReference Include="TextCopy" Version="6.1.0" />
 	</ItemGroup>
 
 </Project>

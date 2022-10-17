@@ -9,7 +9,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
-		<PackageReference Include="TextCopy" Version="4.3.1" />
+		<PackageReference Include="TextCopy" Version="6.1.0" />
 		<ProjectReference Include="..\library\library.csproj" />
 		<PackageReference Include="RegExtract" Version="1.0.17" />
 		<PackageReference Include="OneOf" Version="3.0.205" />
