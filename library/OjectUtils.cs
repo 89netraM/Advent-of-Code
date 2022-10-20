@@ -59,5 +59,22 @@ namespace AoC.Library
 			}
 			return null;
 		}
+
+		/// <summary>
+		/// Calls the specified <paramref name="selector" /> with the <paramref name="source"/> as its argument and
+		/// returns its result.
+		/// </summary>
+		public static U Let<T, U>(this T source, Func<T, U> selector) =>
+			selector(source);
+
+		/// <summary>
+		/// Calls the specified <paramref name="action" /> with the <paramref name="source"/> as its argument and
+		/// returns the <paramref name="source"/>.
+		/// </summary>
+		public static T Also<T>(this T source, Action<T> action)
+		{
+			action(source);
+			return source;
+		}
 	}
 }

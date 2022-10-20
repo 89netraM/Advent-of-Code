@@ -9,21 +9,21 @@ public class Day6
 {
 	[Part(1)]
 	public object Part1(string input) =>
-		String.Concat(
-			input.Lines()
-				.Transpose()
-				.Select(p => p.ToCounter()
-					.OrderByDescending(g => g.Value)
-					.First())
-				.Select(g => g.Key));
+		input.Lines()
+			.Transpose()
+			.Select(p => p.ToCounter()
+				.OrderByDescending(g => g.Value)
+				.First())
+			.Select(g => g.Key)
+			.Let(String.Concat);
 
 	[Part(2)]
 	public object Part2(string input) =>
-		String.Concat(
-			input.Lines()
-				.Transpose()
-				.Select(p => p.ToCounter()
-					.OrderBy(g => g.Value)
-					.First())
-				.Select(g => g.Key));
+		input.Lines()
+			.Transpose()
+			.Select(p => p.ToCounter()
+				.OrderBy(g => g.Value)
+				.First())
+			.Select(g => g.Key)
+			.Let(String.Concat);
 }
