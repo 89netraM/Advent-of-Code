@@ -91,5 +91,73 @@ namespace AoC.Library.Test
 		}
 
 		private record LongBox(long Long);
+
+		[TestMethod]
+		public void Transpose_Square()
+		{
+			var arr = new[]
+			{
+				new[] { 1, 2 },
+				new[] { 3, 4 },
+			};
+			var transArr = new[]
+			{
+				new[] { 1, 3 },
+				new[] { 2, 4 },
+			};
+			Assert.IsTrue(arr.Transpose().SequenceEqual(transArr, new SequenceEqualityComparer<int>()));
+		}
+
+		[TestMethod]
+		public void Transpose_Wide()
+		{
+			var arr = new[]
+			{
+				new[] { 1, 2, 3 },
+				new[] { 4, 5, 6 },
+			};
+			var transArr = new[]
+			{
+				new[] { 1, 4 },
+				new[] { 2, 5 },
+				new[] { 3, 6 },
+			};
+			Assert.IsTrue(arr.Transpose().SequenceEqual(transArr, new SequenceEqualityComparer<int>()));
+		}
+
+		[TestMethod]
+		public void Transpose_Tall()
+		{
+			var arr = new[]
+			{
+				new[] { 1, 2 },
+				new[] { 3, 4 },
+				new[] { 5, 6 },
+			};
+			var transArr = new[]
+			{
+				new[] { 1, 3, 5 },
+				new[] { 2, 4, 6 },
+			};
+			Assert.IsTrue(arr.Transpose().SequenceEqual(transArr, new SequenceEqualityComparer<int>()));
+		}
+
+		[TestMethod]
+		public void Transpose_Jagged()
+		{
+			var arr = new[]
+			{
+				new[] { 1, 2, 3 },
+				new[] { 4, 5 },
+				new[] { 6, 7, 8 },
+			};
+			var transArr = new[]
+			{
+				new[] { 1, 4, 6 },
+				new[] { 2, 5, 7 },
+				new[] { 3, 8 },
+			};
+			Assert.IsTrue(arr.Transpose().SequenceEqual(transArr, new SequenceEqualityComparer<int>()));
+		}
 	}
 }

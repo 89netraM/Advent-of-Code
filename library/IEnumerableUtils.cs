@@ -117,5 +117,34 @@ namespace AoC.Library
 			source.Select(selector)
 				.Where(static t => t is not null)
 				.Cast<U>();
+
+		/// <summary>
+		/// Returns a transposed enumerable enumerable of the <paramref name="source"/>. A jagged source does not
+		/// result in any gaps in the result, instead the result is jagged as well.
+		/// </summary>
+		public static IEnumerable<IEnumerable<T>> Transpose<T>(this IEnumerable<IEnumerable<T>> source)
+		{
+			var enumerators = source.Select(e => e.GetEnumerator()).ToArray();
+			while (true)
+			{
+				var row = new List<T>();
+				foreach (var enumerator in enumerators)
+				{
+					if (enumerator.MoveNext())
+					{
+						row.Add(enumerator.Current);
+					}
+				}
+
+				if (row.Count > 0)
+				{
+					yield return row;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
 	}
 }

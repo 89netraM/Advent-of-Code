@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using FsCheck;
 
 namespace AoC.Library.Test
@@ -40,6 +43,29 @@ namespace AoC.Library.Test
 				res /= (i + 1);
 			}
 			return res;
+		}
+	}
+
+	public class SequenceEqualityComparer<T> : IEqualityComparer<IEnumerable<T>>
+	{
+		private readonly IEqualityComparer<T> equalityComparer;
+
+		public SequenceEqualityComparer() =>
+			equalityComparer = EqualityComparer<T>.Default;
+		public SequenceEqualityComparer(IEqualityComparer<T> equalityComparer) =>
+			this.equalityComparer = equalityComparer;
+
+		public bool Equals(IEnumerable<T>? x, IEnumerable<T>? y) =>
+			(x is null && y is null) || (x is not null && y is not null && x.SequenceEqual(y));
+
+		public int GetHashCode([DisallowNull] IEnumerable<T> obj)
+		{
+			var hc = new HashCode();
+			foreach (var t in obj)
+			{
+				hc.Add(t);
+			}
+			return hc.ToHashCode();
 		}
 	}
 }
