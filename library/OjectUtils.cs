@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using TupleAsJsonArray;
 
@@ -17,6 +18,7 @@ namespace AoC.Library
 			Converters =
 			{
 				new TupleConverterFactory(),
+				new JsonStringEnumConverter(),
 			},
 		};
 
