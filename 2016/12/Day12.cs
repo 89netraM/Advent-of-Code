@@ -56,104 +56,25 @@ public class Day12
 		return regs["a"];
 	}
 
+	public static Assembler AssemBunny { get; }
+	static Day12()
+	{
+		var t = Transpiler.SingleCharRegister('a');
+		AssemBunny = new Assembler
+		{
+			{ "cpy", ins => t.Assign(ins, 1, 0) },
+			{ "inc", ins => t.Inc(ins, 0) },
+			{ "dec", ins => t.Dec(ins, 0) },
+			{ "jnz", ins => t.If(t.Ne(ins, 0, "0"), t.JumpOffset(ins, 1)) },
+		};
+	}
+
 	[Part(2)]
 	public object Part2(string input)
 	{
-		long a = 0, b = 0, c = 1, d = 0;
-
-		// cpy 1 a
-		a = 1;
-
-		// cpy 1 b
-		b = 1;
-
-		// cpy 26 d
-		d = 26;
-
-		// jnz c 2
-		if (c != 0)
-		{
-			goto ins6;
-		}
-
-		// jnz 1 5
-		goto ins10;
-
-		// cpy 7 c
-	ins6:
-		c = 7;
-
-		// inc d
-	ins7:
-		d++;
-
-		// dec c
-		c--;
-
-		// jnz c -2
-		if (c != 0)
-		{
-			goto ins7;
-		}
-
-		// cpy a c
-	ins10:
-		c = a;
-
-		// inc a
-	ins11:
-		a++;
-
-		// dec b
-		b--;
-
-		// jnz b -2
-		if (b != 0)
-		{
-			goto ins11;
-		}
-		
-		// cpy c b
-		b = c;
-
-		// dec d
-		d--;
-
-		// jnz d -6
-		if (d != 0)
-		{
-			goto ins10;
-		}
-		
-		// cpy 18 c
-		c = 18;
-
-		// cpy 11 d
-	ins18:
-		d = 11;
-
-		// inc a
-	ins19:
-		a++;
-
-		// dec d
-		d--;
-
-		// jnz d -2
-		if (d != 0)
-		{
-			goto ins19;
-		}
-		
-		// dec c
-		c--;
-
-		// jnz c -5
-		if (c != 0)
-		{
-			goto ins18;
-		}
-
-		return a;
+		var function = AssemBunny.Compile(input);
+		var regs = new long[] { 0, 0, 1, 0 };
+		function(regs);
+		return regs[0];
 	}
 }
