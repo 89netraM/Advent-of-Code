@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static AoC.Library.Functional;
@@ -158,6 +159,29 @@ namespace AoC.Library.Test
 				new[] { 3, 8 },
 			};
 			Assert.IsTrue(arr.Transpose().SequenceEqual(transArr, new SequenceEqualityComparer<int>()));
+		}
+
+		[TestMethod]
+		public void ToHexString_Array()
+		{
+			var arr = new byte[] { 0xff, 0x5a, 0x01, 0x44, };
+			Assert.AreEqual("ff5a0144", arr.ToHexString());
+		}
+
+		[TestMethod]
+		public void ToHexString_Enumerable()
+		{
+			var enumerable = Enumerable.Range(7, 3)
+				.Concat(Enumerable.Range(0xf3, 3))
+				.Select(i => (byte)i);
+			Assert.AreEqual("070809f3f4f5", enumerable.ToHexString());
+		}
+
+		[TestMethod]
+		public void ToHexString_Span()
+		{
+			Span<byte> span = stackalloc byte[] { 0xff, 0x5a, 0x01, 0x44, };
+			Assert.AreEqual("ff5a0144", span.ToHexString());
 		}
 	}
 }

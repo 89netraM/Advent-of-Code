@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using AoC.Library;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace AoC.Year2016;
 
@@ -14,29 +11,12 @@ public class Day14
 	private readonly static Regex three = new Regex(@"(.)\1\1");
 
 	[Part(1)]
-	public object Part1(string input)
-	{
-		var md5 = MD5.Create();
-		return Search(number => {
-			var data = Encoding.ASCII.GetBytes($"{input}{number}");
-			return String.Concat(md5.ComputeHash(data).Select(b => b.ToString("x2")));
-		});
-	}
+	public object Part1(string input) =>
+		Search(number => Hash.MD5($"{input}{number}"));
 
 	[Part(2)]
-	public object Part2(string input)
-	{
-		var md5 = MD5.Create();
-		return Search(number => {
-			var str = $"{input}{number}";
-			for (int i = 0; i <= 2016; i++)
-			{
-				var data = Encoding.ASCII.GetBytes(str);
-				str = String.Concat(md5.ComputeHash(data).Select(b => b.ToString("x2")));
-			}
-			return str;
-		});
-	}
+	public object Part2(string input) =>
+		Search(number => Hash.MD5($"{input}{number}", 2017));
 
 	private long Search(Func<long, string> hashing)
 	{

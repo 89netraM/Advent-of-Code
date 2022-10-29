@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace AoC.Library
 {
@@ -146,5 +147,56 @@ namespace AoC.Library
 				}
 			}
 		}
+
+		/// <summary>
+		/// Converts a sequence of bytes to a "human readable" hex-string.
+		/// </summary>
+		public static string ToHexString(this IEnumerable<byte> source)
+		{
+			if (source.TryGetNonEnumeratedCount(out int count))
+			{
+				return String.Create(count * 2, source, FillSpanWithHexFromEnumerable);
+			}
+			else
+			{
+				var array = source.ToArray();
+				return String.Create(array.Length * 2, array, FillSpanWithHexFromArray);
+			}
+
+			static void FillSpanWithHexFromArray(Span<char> str, byte[] bytes)
+			{
+				for (int i = 0; i < bytes.Length; i++)
+				{
+					str[i * 2] = IntToHex(bytes[i] >> 4);
+					str[i * 2 + 1] = IntToHex(bytes[i] & 0x0f);
+				}
+			}
+
+			static void FillSpanWithHexFromEnumerable(Span<char> str, IEnumerable<byte> source)
+			{
+				int i = 0;
+				foreach (byte b in source)
+				{
+					str[i * 2] = IntToHex(b >> 4);
+					str[i * 2 + 1] = IntToHex(b & 0x0f);
+					i++;
+				}
+			}
+		}
+		/// <summary>
+		/// Converts a span of bytes to a "human readable" hex-string.
+		/// </summary>
+		public static string ToHexString(this Span<byte> source)
+		{
+			char[] chars = new char[source.Length * 2];
+			for (int i = 0; i < source.Length; i++)
+			{
+				chars[i * 2] = IntToHex(source[i] >> 4);
+				chars[i * 2 + 1] = IntToHex(source[i] & 0x0f);
+			}
+			return new String(chars);
+		}
+		private static char IntToHex(int n) =>
+			(char)(n < 10 ? (n + '0') : (n - 10 + 'a'));
 	}
 }
