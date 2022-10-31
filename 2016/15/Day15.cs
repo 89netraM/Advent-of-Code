@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using AoC.Library;
 using RegExtract;
@@ -8,47 +9,35 @@ namespace AoC.Year2016;
 public class Day15
 {
 	[Part(1)]
-	public object Part1(string input)
-	{
-		var disks = input.Lines()
-			.Extract<Disk>(@"Disc #(?:\d+) has (\d+) positions; at time=0, it is at position (\d+).")
-			.ToArray();
-
-		for (long dropTime = 0; true; dropTime++)
-		{
-			for (int i = 0; i < disks.Length; i++)
-			{
-				if (disks[i].PositionAt(dropTime + i + 1) != 0)
-				{
-					goto next;
-				}
-			}
-			return dropTime;
-			next:;
-		}
-	}
+	public long Part1(string input) =>
+		ParseDisks(input)
+			.Let(FindFirstDropTime);
 
 	[Part(2)]
-	public object Part2(string input)
-	{
-		var disks = input.Lines()
-			.Extract<Disk>(@"Disc #(?:\d+) has (\d+) positions; at time=0, it is at position (\d+).")
+	public long Part2(string input) =>
+		ParseDisks(input)
 			.Append(new Disk(11, 0))
-			.ToArray();
+			.ToArray()
+			.Let(FindFirstDropTime);
 
-		for (long dropTime = 0; true; dropTime++)
+	private IEnumerable<Disk> ParseDisks(string input) =>
+		input.Lines()
+			.Extract<Disk>(@"Disc #(?:\d+) has (\d+) positions; at time=0, it is at position (\d+).");
+
+	private long FindFirstDropTime(IEnumerable<Disk> disks)
+	{
+		for (long time = 0; true; time++)
 		{
-			for (int i = 0; i < disks.Length; i++)
+			if (CanDropAtTime(disks, time))
 			{
-				if (disks[i].PositionAt(dropTime + i + 1) != 0)
-				{
-					goto next;
-				}
+				return time;
 			}
-			return dropTime;
-			next:;
 		}
 	}
+
+	private bool CanDropAtTime(IEnumerable<Disk> disks, long time) =>
+		disks.Enumerate()
+			.All(kvp => kvp.Value.PositionAt(time + kvp.Key + 1) == 0);
 
 	private record Disk(long PositionCount, long StartPosition)
 	{
