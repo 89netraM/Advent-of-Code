@@ -65,7 +65,7 @@ namespace AoC.Library.Test
 				ca.Step();
 			}
 
-			Assert.AreEqual(247, ca.Count(static kvp => kvp.Value == State.Active));
+			Assert.AreEqual(247, ca.CountInBounds(ca.Bounds(), s => s == State.Active));
 		}
 
 		[TestMethod]
@@ -118,7 +118,7 @@ namespace AoC.Library.Test
 				ca.Step();
 			}
 
-			Assert.AreEqual(1392, ca.Count(static kvp => kvp.Value == State.Active));
+			Assert.AreEqual(1392, ca.CountInBounds(ca.Bounds(), s => s == State.Active));
 		}
 		#endregion 2020 Day 17
 
@@ -211,7 +211,7 @@ namespace AoC.Library.Test
 				ca.Step();
 			}
 
-			Assert.AreEqual(543312, ca.Count(static kvp => kvp.Value == Area.Tree) * ca.Count(static kvp => kvp.Value == Area.Lumberyard));
+			Assert.AreEqual(543312, ca.CountInBounds(ca.Bounds(), s => s == Area.Tree) * ca.CountInBounds(s => s == Area.Lumberyard));
 		}
 		#endregion 2018 Day 18
 	}

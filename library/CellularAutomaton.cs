@@ -170,6 +170,64 @@ namespace AoC.Library
 			}
 		}
 
+		public long CountInBounds(Predicate<TState> predicate) =>
+			CountInBounds(ConfinementBounds ?? throw new InvalidOperationException($"No {nameof(ConfinementBounds)} defined"), predicate);
+		public long CountInBounds((TCoord min,TCoord max) bounds, Predicate<TState> predicate)
+		{
+			long count = 0;
+			var (min, max) = bounds;
+			LinkedList<long> taken = new LinkedList<long>();
+
+			void RecursiveCount()
+			{
+				if (taken.Count < min.Count - 2)
+				{
+					for (long i = min[min.Count - taken.Count - 1]; i <= max[min.Count - taken.Count - 1]; i++)
+					{
+						taken.AddFirst(i);
+						RecursiveCount();
+						taken.RemoveFirst();
+					}
+				}
+				else
+				{
+					long[] coordArray = new long[min.Count];
+					taken.CopyTo(coordArray, 2);
+					for (long y = min[1]; y <= max[1]; y++)
+					{
+						coordArray[1] = y;
+						for (long x = min[0]; x <= max[0]; x++)
+						{
+							coordArray[0] = x;
+							TCoord coord = Vector.FromArray<TCoord>(coordArray);
+							if (predicate(current.TryGetValue(coord, out TState state) ? state : DefaultState))
+							{
+								count++;
+							}
+						}
+					}
+				}
+			}
+
+			if (min.Count > 1)
+			{
+				RecursiveCount();
+			}
+			else
+			{
+				for (long[] coordArray = new [] { min[0] }; coordArray[0] <= max[0]; coordArray[0]++)
+				{
+					TCoord coord = Vector.FromArray<TCoord>(coordArray);
+					if (predicate(current.TryGetValue(coord, out TState state) ? state : DefaultState))
+					{
+						count++;
+					}
+				}
+			}
+
+			return count;
+		}
+
 		public bool Equals(CellularAutomaton<TCoord, TState>? other)
 		{
 			if (other is null || other.current.Count != current.Count)
