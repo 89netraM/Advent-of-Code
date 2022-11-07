@@ -18,7 +18,8 @@ namespace AoC.Library
 			Func<TNode, IEnumerable<TNode>> getNext,
 			Func<TNode, bool> goalCondition,
 			out IEnumerable<TNode> path,
-			Action<TNode>? between = null
+			Action<TNode>? between = null,
+			IEqualityComparer<TNode>? nodeComparer = null
 		) where TNode : notnull
 		{
 			bool success = Search<TNode, UnitDirection>(
@@ -26,7 +27,8 @@ namespace AoC.Library
 				n => getNext(n).Select(static next => (UnitDirection.Unit, next, 1L)),
 				goalCondition,
 				out IEnumerable<(UnitDirection, TNode, long)> internalPath,
-				between is not null ? (_, n, _) => between(n) : null
+				between is not null ? (_, n, _) => between(n) : null,
+				nodeComparer
 			);
 			path = internalPath.Select(static p => p.Item2);
 			return success;
@@ -37,7 +39,8 @@ namespace AoC.Library
 			Func<TNode, IEnumerable<(TDirection, TNode)>> getNext,
 			Func<TNode, bool> goalCondition,
 			out IEnumerable<(TDirection, TNode)> path,
-			Action<TDirection, TNode>? between = null
+			Action<TDirection, TNode>? between = null,
+			IEqualityComparer<TNode>? nodeComparer = null
 		) where TNode : notnull
 		{
 			bool success = Search<TNode, TDirection>(
@@ -45,7 +48,8 @@ namespace AoC.Library
 				n => getNext(n).Select(static p => (p.Item1, p.Item2, 1L)),
 				goalCondition,
 				out IEnumerable<(TDirection, TNode, long)> internalPath,
-				between is not null ? (d, n, _) => between(d, n) : null
+				between is not null ? (d, n, _) => between(d, n) : null,
+				nodeComparer
 			);
 			path = internalPath.Select(static p => (p.Item1, p.Item2));
 			return success;
@@ -56,7 +60,8 @@ namespace AoC.Library
 			Func<TNode, IEnumerable<(TNode, long)>> getNext,
 			Func<TNode, bool> goalCondition,
 			out IEnumerable<(TNode, long)> path,
-			Action<TNode, long>? between = null
+			Action<TNode, long>? between = null,
+			IEqualityComparer<TNode>? nodeComparer = null
 		) where TNode : notnull
 		{
 			bool success = Search<TNode, UnitDirection>(
@@ -64,7 +69,8 @@ namespace AoC.Library
 				n => getNext(n).Select(static p => (UnitDirection.Unit, p.Item1, p.Item2)),
 				goalCondition,
 				out IEnumerable<(UnitDirection, TNode, long)> internalPath,
-				between is not null ? (_, n, c) => between(n, c) : null
+				between is not null ? (_, n, c) => between(n, c) : null,
+				nodeComparer
 			);
 			path = internalPath.Select(static p => (p.Item2, p.Item3));
 			return success;
@@ -75,10 +81,11 @@ namespace AoC.Library
 			Func<TNode, IEnumerable<(TDirection, TNode, long)>> getNext,
 			Func<TNode, bool> goalCondition,
 			out IEnumerable<(TDirection, TNode, long)> path,
-			Action<TDirection, TNode, long>? between = null
+			Action<TDirection, TNode, long>? between = null,
+			IEqualityComparer<TNode>? nodeComparer = null
 		) where TNode : notnull
 		{
-			IDictionary<TNode, IImmutableList<(TDirection, TNode, long)>> directionTo = new Dictionary<TNode, IImmutableList<(TDirection, TNode, long)>>();
+			IDictionary<TNode, IImmutableList<(TDirection, TNode, long)>> directionTo = new Dictionary<TNode, IImmutableList<(TDirection, TNode, long)>>(nodeComparer);
 			directionTo.Add(start, ImmutableList.Create<(TDirection, TNode, long)>());
 			IPriorityQueue<TNode, long> toVisit = new SimplePriorityQueue<TNode, long>();
 			toVisit.Enqueue(start, 0);
