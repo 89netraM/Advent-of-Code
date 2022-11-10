@@ -10,30 +10,53 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace AoC.Library;
 
-public class Assembler : IEnumerable
+public abstract class AssemblerBase : IEnumerable
 {
-	public IDictionary<string, Func<Instruction, string>> OpTranspilers { get; }
-	public Func<Instruction, string> FallbackTranspiler = ins => throw new ArgumentException($"Can not transpile {ins.Op} instructions");
+	public IDictionary<string, Func<Transpiler, Instruction, string>> OpTranspilers { get; }
+	public Func<Transpiler, Instruction, string> FallbackTranspiler { get; set; } = (_, ins) => throw new ArgumentException($"Can not transpile {ins.Op} instructions");
+	public Transpiler Transpiler { get; init; }
 
-	public Assembler() =>
-		OpTranspilers = new Dictionary<string, Func<Instruction, string>>();
+	public IReadOnlyList<string> ArgNames { get; init; } = new string[0];
+	public string Header { get; init; } = "";
+	public string Footer { get; init; } = "";
 
-	public Assembler(IDictionary<string, Func<Instruction, string>> opTranspilers) =>
-		OpTranspilers = opTranspilers;
+	public AssemblerBase(Transpiler transpiler) =>
+		(Transpiler, OpTranspilers) = (transpiler, new Dictionary<string, Func<Transpiler, Instruction, string>>());
 
-	public Assembler(Assembler original) : this()
+	public AssemblerBase(Transpiler transpiler, IDictionary<string, Func<Transpiler, Instruction, string>> opTranspilers) =>
+		(Transpiler, OpTranspilers) = (transpiler, opTranspilers);
+
+	public AssemblerBase(AssemblerBase original)
 	{
+		OpTranspilers = new Dictionary<string, Func<Transpiler, Instruction, string>>();
+		Transpiler = original.Transpiler;
 		foreach (var (op, transpiler) in original.OpTranspilers)
 		{
-			Add(op, transpiler);
+			this[op] = transpiler;
 		}
 		FallbackTranspiler = original.FallbackTranspiler;
 	}
 
-	public void Add(string op, Func<Instruction, string> transpiler) =>
-		OpTranspilers.Add(op, transpiler);
+	public Func<Transpiler, Instruction, string> this[string op]
+	{
+		get => OpTranspilers[op];
+		set => OpTranspilers[op] = value;
+	}
 
-	public Action<long[]>? Compile(string input)
+	public IEnumerator GetEnumerator() =>
+		OpTranspilers.GetEnumerator();
+}
+
+public class Assembler<TFunc> : AssemblerBase
+	where TFunc : Delegate
+{
+	public Assembler(Transpiler transpiler) : base(transpiler) { }
+
+	public Assembler(Transpiler transpiler, IDictionary<string, Func<Transpiler, Instruction, string>> opTranspilers) : base(transpiler, opTranspilers) { }
+
+	public Assembler(AssemblerBase original) : base(original) { }
+
+	public TFunc? Compile(string input)
 	{
 		var code = BuildCode(input);
 		return CompileFunction(code);
@@ -61,7 +84,8 @@ public class Assembler : IEnumerable
 			code.AppendLine(Transpile(instruction));
 		}
 
-		code.AppendLine(@"return;
+		code.AppendLine(@"
+				break;
 			}");
 
 		return code.ToString();
@@ -69,12 +93,26 @@ public class Assembler : IEnumerable
 
 	private string Transpile(Instruction instruction) =>
 		OpTranspilers.TryGetValue(instruction.Op, out var transpiler)
-			? transpiler(instruction)
-			: FallbackTranspiler(instruction);
+			? transpiler(Transpiler, instruction)
+			: FallbackTranspiler(Transpiler, instruction);
 
-	private static Action<long[]>? CompileFunction(string body)
+	private TFunc? CompileFunction(string body)
 	{
-		var code = $"public static class Program {{ public static void Main(long[] {Transpiler.RegisterName}) {{ {body} }} }}";
+		var delegateType = typeof(TFunc);
+		var returnType = GetReturnTypeFromDelegate(delegateType);
+		var arguments = GetArgumentTypesFromDelegate(delegateType)
+			.Zip(ArgNames, (t, n) => $"{t} {n}")
+			.Let(args => String.Join(", ", args));
+		var code = @$"public static class Program
+			{{
+				public static {returnType} Main({arguments})
+				{{
+					{Transpiler.Header}
+					{Header}
+					{body}
+					{Footer}
+				}}
+			}}";
 		var compilation = CSharpCompilation.Create(
 			Path.GetRandomFileName(),
 			new[] { CSharpSyntaxTree.ParseText(code) },
@@ -104,7 +142,7 @@ public class Assembler : IEnumerable
 			return compiledAssembly
 				.GetType("Program")?
 				.GetMethod("Main")?
-				.CreateDelegate<Action<long[]>>();
+				.CreateDelegate<TFunc>();
 		}
 		catch (Exception ex)
 		{
@@ -115,6 +153,43 @@ public class Assembler : IEnumerable
 		}
 	}
 
-	public IEnumerator GetEnumerator() =>
-		OpTranspilers.GetEnumerator();
+	private static string GetReturnTypeFromDelegate(Type delegateType) =>
+		GetMethodInfoOfDelegate(delegateType)
+			.ReturnType
+			.Let(GetCodeNameOfType);
+
+	private static IEnumerable<string> GetArgumentTypesFromDelegate(Type delegateType) =>
+		GetMethodInfoOfDelegate(delegateType)
+			.GetParameters()
+			.Select(pi => GetCodeNameOfType(pi.ParameterType));
+
+	private static MethodInfo GetMethodInfoOfDelegate(Type delegateType) =>
+		delegateType
+			.GetMethod("Invoke")!;
+
+	private static string GetCodeNameOfType(Type type)
+	{
+		if (!type.IsGenericType)
+		{
+			var typeName = type.FullName!;
+			var infoIndex = typeName.IndexOf("[");
+			if (infoIndex == -1)
+			{
+				return typeName;
+			}
+			else
+			{
+				return typeName.Substring(0, infoIndex);
+			}
+		}
+		else
+		{
+			var typeName = type.FullName!;
+			typeName = typeName.Substring(0, typeName.IndexOf("`"));
+			var typeArgs = type.GetGenericArguments()
+				.Select(GetCodeNameOfType)
+				.Let(args => String.Join(", ", args));
+			return $"{typeName}<{typeArgs}>";
+		}
+	}
 }

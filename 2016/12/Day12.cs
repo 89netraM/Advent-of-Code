@@ -56,25 +56,21 @@ public class Day12
 		return regs["a"];
 	}
 
-	public static Assembler AssemBunny { get; }
-	static Day12()
+	public static Assembler<Func<long, long>> AssemBunny { get; } = new(Transpiler.DirectRegister())
 	{
-		var t = Transpiler.SingleCharRegister('a');
-		AssemBunny = new Assembler
-		{
-			{ "cpy", ins => t.Assign(ins, 1, 0) },
-			{ "inc", ins => t.Inc(ins, 0) },
-			{ "dec", ins => t.Dec(ins, 0) },
-			{ "jnz", ins => t.If(t.Ne(ins, 0, "0"), t.JumpOffset(ins, 1)) },
-		};
-	}
+		ArgNames = new[] { "c" },
+		Header = "long a = 0, b = 0, d = 0;",
+		Footer = "return a;",
+		["cpy"] = (t, ins) => t.Assign(ins, 1, 0),
+		["inc"] = (t, ins) => t.Inc(ins, 0),
+		["dec"] = (t, ins) => t.Dec(ins, 0),
+		["jnz"] = (t, ins) => t.If(t.Ne(ins, 0, "0"), t.JumpOffset(ins, 1)),
+	};
 
 	[Part(2)]
 	public object Part2(string input)
 	{
 		var function = AssemBunny.Compile(input);
-		var regs = new long[] { 0, 0, 1, 0 };
-		function(regs);
-		return regs[0];
+		return function(1);
 	}
 }

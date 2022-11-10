@@ -2,15 +2,25 @@ namespace AoC.Library;
 
 public abstract class Transpiler
 {
-	public const string StartLabel = "START";
-	public const string RegisterName = "regs";
-	public const string InstructionPointerName = "ip";
+	public string StartLabel { get; init; } = "START";
+	public string InstructionPointerName { get; init; } = "ip";
 
 	/// <summary>
 	/// Instantiates a transpiler where registers are single character variables starting from <paramref name="startRegister" />.
 	/// </summary>
 	public static Transpiler SingleCharRegister(char startRegister) =>
 		new SingleCharRegisterTranspiler(startRegister);
+
+	/// <summary>
+	/// Instantiates a transpiler where registers are variables with the same name as in the original program.
+	/// </summary>
+	public static Transpiler DirectRegister() =>
+		new DirectRegisterTranspiler();
+
+	/// <summary>
+	/// Returns a string of C# statements used to initiate transpiler specific things.
+	/// </summary>
+	public virtual string Header => "";
 
 	/// <summary>
 	/// Assigns the value of <paramref name="from" /> to <paramref name="to" />.
@@ -456,24 +466,29 @@ public abstract class Transpiler
 	public string ArgumentToExpression(Instruction ins, int index) =>
 		ins.TryNumber(index, out long value)
 			? value.ToString()
-			: $"{RegisterName}[{RegisterNameToIndex(ins[index])}]";
+			: RegisterNameToExpression(ins[index]);
 
 	/// <summary>
-	/// Translates a register name to an index in the register array.
+	/// Translates a register name to a C# expression.
 	/// </summary>
-	public abstract int RegisterNameToIndex(string registerName);
+	public abstract string RegisterNameToExpression(string registerName);
 }
 
-internal class SingleCharRegisterTranspiler : Transpiler
+public class SingleCharRegisterTranspiler : Transpiler
 {
+	public const string RegisterName = "regs";
+
 	public char StartRegister;
 
 	public SingleCharRegisterTranspiler(char startRegister) =>
 		StartRegister = startRegister;
 
-	/// <summary>
-	/// Register offset is calculated based on a single character register name starting from <paramref name="startRegister" />.
-	/// </summary>
-	public override int RegisterNameToIndex(string registerName) =>
-		registerName[0] - StartRegister;
+	public override string RegisterNameToExpression(string registerName) =>
+		$"{RegisterName}[{registerName[0] - StartRegister}]";
+}
+
+public class DirectRegisterTranspiler : Transpiler
+{
+	public override string RegisterNameToExpression(string registerName) =>
+		registerName;
 }
