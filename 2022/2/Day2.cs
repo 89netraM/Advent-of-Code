@@ -1,6 +1,6 @@
+using System;
 using System.Linq;
 using AoC.Library;
-using RegExtract;
 
 namespace AoC.Year2022;
 
@@ -9,51 +9,29 @@ public class Day2
 {
 	[Part(1)]
 	public object Part1(string input) =>
-		input.Lines()
-			.Extract<(char, char)>(@"(.) (.)")
-			.Select(ScorePlain)
-			.Sum();
-
-	private long ScorePlain((char, char) p)
-	{
-		long elf = (long)(p.Item1 - 'A');
-		long me = (long)(p.Item2 - 'X');
-
-		long win = 0;
-		if (elf == me)
-		{
-			win = 3;
-		}
-		else if (MathM.Mod(elf + 1, 3) == me)
-		{
-			win = 6;
-		}
-
-		return 1 + me + win;
-	}
+		Score(input, ScorePlain);
 
 	[Part(2)]
 	public object Part2(string input) =>
+		Score(input, ScoreEncrypted);
+
+	private long Score(string input, Func<char, char, long> scoringFunction) =>
 		input.Lines()
-			.Extract<(char, char)>(@"(.) (.)")
-			.Select(ScoreEncrypted)
-			.Sum();
+			.Sum(l => scoringFunction(l[0], l[2]));
 
-	private long ScoreEncrypted((char, char) p)
+	private long ScorePlain(char elfC, char meC)
 	{
-		long elf = (long)(p.Item1 - 'A');
-		long win = (long)(p.Item2 - 'X') * 3;
+		long elf = (long)(elfC - 'A');
+		long me = (long)(meC - 'X');
+		long win = MathM.Mod(me - elf + 1, 3) * 3;
+		return 1 + me + win;
+	}
 
-		long me = elf;
-		if (win == 0)
-		{
-			me = MathM.Mod(elf - 1, 3);
-		}
-		else if (win == 6)
-		{
-			me = MathM.Mod(elf + 1, 3);
-		}
-
+	private long ScoreEncrypted(char elfC, char winC)
+	{
+		long elf = (long)(elfC - 'A');
+		long win = (long)(winC - 'X') * 3;
+		long me = MathM.Mod(elf + (win / 3 - 1), 3);
 		return 1 + me + win;
 	}
 }
