@@ -22,6 +22,28 @@
 			"cwd": "${fileDirname}",
 			"console": "internalConsole",
 			"stopAtEntry": false
+		},
+		{
+			"name": ".NET 2022 Part 1",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build 2022",
+			"program": "${workspaceFolder}/2022/bin/Debug/net7.0/2022.dll",
+			"args": ["1"],
+			"cwd": "${fileDirname}",
+			"console": "internalConsole",
+			"stopAtEntry": false
+		},
+		{
+			"name": ".NET 2022 Part 2",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build 2022",
+			"program": "${workspaceFolder}/2022/bin/Debug/net7.0/2022.dll",
+			"args": ["2"],
+			"cwd": "${fileDirname}",
+			"console": "internalConsole",
+			"stopAtEntry": false
 		}
 	]
 }

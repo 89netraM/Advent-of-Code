@@ -12,6 +12,18 @@
 				"/consoleloggerparameters:NoSummary"
 			],
 			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "build 2022",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/2022/2022.csproj",
+				"/property:GenerateFullPaths=true",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
 		}
 	]
 }
