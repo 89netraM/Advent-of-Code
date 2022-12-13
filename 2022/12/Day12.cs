@@ -80,6 +80,7 @@ public class Day12
 				(-1, 0) => '←',
 				(1, 0) => '→',
 				(0, 1) => '↓',
+				_ => throw new Exception(),
 			};
 			Print(map, prev);
 			prev = step;
