@@ -55,20 +55,32 @@ try {
 
 		$sourceFile = "$dayPath\Day$Day.$Language";
 
+		$descHead = 15;
+		$descFoot = 4;
+
 		$html = New-Object -ComObject "HTMLFile";
 		$result = Invoke-WebRequest -Headers $headers -Uri "https://adventofcode.com/$Year/day/$Day";
 		$html.write([System.Text.Encoding]::Unicode.GetBytes($result.Content));
 		$description = $html.body.innerText -split "`r`n";
-		$description[15..($description.Length - 4)] | ForEach-Object { "// $_" } | Out-File -Path $sourceFile;
+		$description[$descHead..($description.Length - $descFoot)] | ForEach-Object { "// $_" } | Out-File -Path $sourceFile;
+
+		$locationInFile = $description.Length - ($descHead + $descFoot) + 1;
 
 		if (Test-Path "$basepath\utils\templates\template.$Language") {
 			$template = Get-Content "$basepath\utils\templates\template.$Language" -Raw;
-			$template -ireplace '\$year', "$Year" -ireplace '\$day', "$Day" | Out-File -Path $sourceFile -Append -NoNewline;
+			
+			$inserts = $template -split "`r`n" | Select-String '\$insert';
+			if ($inserts.Length -gt 0) {
+				$locationInFile += $inserts[0].LineNumber;
+				$locationInFile = "$($locationInFile):$($inserts[0].Matches.Index + 1)";
+			}
+
+			$template -ireplace '\$year', "$Year" -ireplace '\$day', "$Day" -ireplace '\$insert', "" | Out-File -Path $sourceFile -Append -NoNewline;
 		}
 
 		Set-Location -Path $dayPath;
 
-		code $sourceFile;
+		code --goto "$($sourceFile):$locationInFile";
 	}
 	catch {
 		Write-Error "Failed to fetch the description and input for $Year/$Day";

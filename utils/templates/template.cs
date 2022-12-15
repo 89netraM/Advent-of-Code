@@ -14,7 +14,7 @@ public class Day$day
 	[Part(1)]
 	public object Part1(string input)
 	{
-
+		return $insert;
 	}
 
 	[Part(2)]
