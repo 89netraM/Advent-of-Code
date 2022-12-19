@@ -14,6 +14,7 @@
 		<PackageReference Include="TextCopy" Version="6.1.0" />
 		<ProjectReference Include="..\library\library.csproj" />
 		<PackageReference Include="RegExtract" Version="1.0.18" />
+		<PackageReference Include="Google.OrTools" Version="9.5.2237" />
 	</ItemGroup>
 
 </Project>
