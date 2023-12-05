@@ -24,6 +24,18 @@
 				"/consoleloggerparameters:NoSummary"
 			],
 			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "build 2023",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/2023/2023.csproj",
+				"/property:GenerateFullPaths=true",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
 		}
 	]
 }
