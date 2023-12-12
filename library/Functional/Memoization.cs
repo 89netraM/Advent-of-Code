@@ -5,11 +5,13 @@ namespace AoC.Library
 {
 	internal class Memoization<TA, TR> where TA : notnull
 	{
-		private readonly IDictionary<TA, TR?> cache = new Dictionary<TA, TR?>();
+		private readonly IDictionary<TA, TR?> cache;
 		private readonly Func<TA, TR?> func;
 
 		public Memoization(Func<TA, TR?> func) =>
-			(this.func) = (func);
+			(this.func, cache) = (func, new Dictionary<TA, TR?>());
+		public Memoization(Func<TA, TR?> func, IEqualityComparer<TA> equalityComparer) =>
+			(this.func, cache) = (func, new Dictionary<TA, TR?>());
 
 		public TR? Invoke(TA arg)
 		{

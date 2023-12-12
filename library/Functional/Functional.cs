@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace AoC.Library
 {
@@ -20,8 +21,12 @@ namespace AoC.Library
 
 		public static Func<TA, TR> Memoize<TA, TR>(Func<TA, TR> f) where TA : notnull =>
 			new Memoization<TA, TR>(f);
+		public static Func<TA, TR> Memoize<TA, TR>(Func<TA, TR> f, IEqualityComparer<TA> equalityComparer) where TA : notnull =>
+			new Memoization<TA, TR>(f, equalityComparer);
 
 		public static Func<T> Const<T>(T value) =>
 			() => value;
+		public static Func<TIn, TOut> Const<TIn, TOut>(TOut value) =>
+			_ => value;
 	}
 }
