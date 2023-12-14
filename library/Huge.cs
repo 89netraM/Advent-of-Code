@@ -7,9 +7,9 @@ namespace AoC.Library
 	[Flags]
 	public enum HugeSearchPattern
 	{
-		Period,
-		ArithmeticProgression,
-		GeometricProgression,
+		Period = 0b001,
+		ArithmeticProgression = 0b010,
+		GeometricProgression = 0b100,
 		Progressions = ArithmeticProgression | GeometricProgression,
 		All = Period | ArithmeticProgression | GeometricProgression,
 	}
@@ -18,10 +18,22 @@ namespace AoC.Library
 	{
 		private const long ProgressionTestLength = 5L;
 
+		public static long TakeImmutableSteps<TState>(long steps, TState state, Func<TState, long, TState> update, Func<TState, long, long> getResult, HugeSearchPattern pattern = HugeSearchPattern.All)
+			where TState : notnull, IEquatable<TState> =>
+			TakeSteps(steps, state, update, getResult, Functional.Id, EqualityComparer<TState>.Default, pattern);
+		public static long TakeImmutableSteps<TState>(long steps, TState state, Func<TState, long, TState> update, Func<TState, long, long> getResult, IEqualityComparer<TState> equalityComparer, HugeSearchPattern pattern = HugeSearchPattern.All)
+			where TState : notnull =>
+			TakeSteps(steps, state, update, getResult, Functional.Id, equalityComparer, pattern);
 		public static long TakeSteps<TState>(long steps, TState state, Func<TState, long, TState> update, Func<TState, long, long> getResult, HugeSearchPattern pattern = HugeSearchPattern.All)
-			where TState : notnull, IEquatable<TState>, ICloneable
+			where TState : notnull, IEquatable<TState>, ICloneable =>
+			TakeSteps(steps, state, update, getResult, s => (TState)s.Clone(), EqualityComparer<TState>.Default, pattern);
+		public static long TakeSteps<TState>(long steps, TState state, Func<TState, long, TState> update, Func<TState, long, long> getResult, IEqualityComparer<TState> equalityComparer, HugeSearchPattern pattern = HugeSearchPattern.All)
+			where TState : notnull, ICloneable =>
+			TakeSteps(steps, state, update, getResult, s => (TState)s.Clone(), equalityComparer, pattern);
+		private static long TakeSteps<TState>(long steps, TState state, Func<TState, long, TState> update, Func<TState, long, long> getResult, Func<TState, TState> clone, IEqualityComparer<TState> equalityComparer, HugeSearchPattern pattern = HugeSearchPattern.All)
+			where TState : notnull
 		{
-			IDictionary<TState, long> seen = new Dictionary<TState, long>();
+			IDictionary<TState, long> seen = new Dictionary<TState, long>(equalityComparer);
 			Queue<long> previous = new Queue<long>();
 
 			long? current = null;
@@ -41,7 +53,7 @@ namespace AoC.Library
 					}
 					else
 					{
-						seen.Add((TState)state.Clone(), i);
+						seen.Add(clone(state), i);
 					}
 				}
 

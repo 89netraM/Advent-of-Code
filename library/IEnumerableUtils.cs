@@ -198,5 +198,21 @@ namespace AoC.Library
 		}
 		private static char IntToHex(int n) =>
 			(char)(n < 10 ? (n + '0') : (n - 10 + 'a'));
+
+		/// <summary>
+		/// Like <see cref="Enumerable.Aggregate{T, TAccumulate}(TAccumulate, Func{TAccumulate, T, TAccumulate})"/>,
+		/// but takes a stateful seed and modifies it through actions.
+		/// </summary>
+		/// <param name="seed">The object to modify with each element.</param>
+		/// <param name="action">The action that modifies the seed with each element.</param>
+		/// <returns>The modified <paramref name="seed"/>.</returns>
+		public static TSeed Aggregate<T, TSeed>(this IEnumerable<T> source, TSeed seed, Action<TSeed, T> action)
+		{
+			foreach (var t in source)
+			{
+				action(seed, t);
+			}
+			return seed;
+		}
 	}
 }
