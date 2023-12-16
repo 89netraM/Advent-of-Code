@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Microsoft.Diagnostics.Tracing;
 
 namespace AoC.Library
 {
@@ -214,5 +215,9 @@ namespace AoC.Library
 			}
 			return seed;
 		}
+
+		public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
+			where TKey : notnull =>
+				source.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 	}
 }

@@ -40,9 +40,9 @@ public class Day16
 		var max = map.Keys.Aggregate((a, b) => a.MaxParts(b));
 
 		return Enumerable.Range(0, (int)max.X + 1)
-			.SelectMany<int, (Vector2, Vector2)>(x => [(new(x, -1), Vector2.Down), (new(x, max.Y + 1), Vector2.Up)])
+			.SelectMany(x => new (Vector2, Vector2)[]{(new(x, -1), Vector2.Down), (new(x, max.Y + 1), Vector2.Up)})
 			.Concat(Enumerable.Range(0, (int)max.Y + 1)
-				.SelectMany<int, (Vector2, Vector2)>(y => [(new(-1, y), Vector2.Right), (new(max.X + 1, y), Vector2.Left)]))
+				.SelectMany(y => new (Vector2, Vector2)[]{(new(-1, y), Vector2.Right), (new(max.X + 1, y), Vector2.Left)}))
 			.AsParallel()
 			.Max(s => Energize(map, max, s));
 	}

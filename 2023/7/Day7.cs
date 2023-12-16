@@ -25,8 +25,14 @@ public class Day7
 			.Select((p, i) => p.bid * (i + 1L))
 			.Sum(Id);
 
-	private class HandComparer(string Strength, bool part2 = false) : IComparer<string>
+	private class HandComparer : IComparer<string>
 	{
+		private readonly string Strength;
+		private readonly bool Part2;
+
+		public HandComparer(string strength, bool part2 = false) =>
+			(Strength, Part2) = (strength, part2);
+
 		public int Compare(string a, string b)
 		{
 			var aKind = GetKind(a);
@@ -47,8 +53,8 @@ public class Day7
 
 		private Kind GetKind(string hand)
 		{
-			var js = hand.Where(c => c == 'J' && part2).Count();
-			var distinct = hand.Where(c => !(c == 'J' && part2))
+			var js = hand.Where(c => c == 'J' && Part2).Count();
+			var distinct = hand.Where(c => !(c == 'J' && Part2))
 				.GroupBy(Id)
 				.Select(g => g.ToList())
 				.OrderByDescending(g => g.Count)
