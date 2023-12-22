@@ -54,6 +54,10 @@ namespace AoC.Library
 		public long Y { get; }
 		public long Z { get; }
 
+		public Vector2 XY => new(X, Y);
+		public Vector2 XZ => new(X, Z);
+		public Vector2 YZ => new(Y, Z);
+
 		public Vector3(long x, long y, long z) =>
 			(X, Y, Z) = (x, y, z);
 
