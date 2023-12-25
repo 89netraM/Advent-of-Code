@@ -20,18 +20,36 @@ namespace AoC.Library
 			out IEnumerable<TNode> path,
 			Action<TNode>? between = null,
 			IEqualityComparer<TNode>? nodeComparer = null
+		) where TNode : notnull =>
+			SearchWithPath(
+				start,
+				getNext,
+				goalCondition,
+				out path,
+				between is not null ? p => between(p.Last()) : null,
+				nodeComparer);
+
+		public static bool SearchWithPath<TNode>(
+			TNode start,
+			Func<TNode, IEnumerable<TNode>> getNext,
+			Func<TNode, bool> goalCondition,
+			out IEnumerable<TNode> path,
+			Action<IEnumerable<TNode>>? between,
+			IEqualityComparer<TNode>? nodeComparer = null
 		) where TNode : notnull
 		{
-			bool success = Search<TNode, UnitDirection>(
+			bool success = SearchWithPath<TNode, UnitDirection>(
 				start,
 				n => getNext(n).Select(static next => (UnitDirection.Unit, next, 1L)),
 				goalCondition,
 				out IEnumerable<(UnitDirection, TNode, long)> internalPath,
-				between is not null ? (_, n, _) => between(n) : null,
+				between is not null ? p => between(p.Select(PathSelector)) : null,
 				nodeComparer
 			);
-			path = internalPath.Select(static p => p.Item2);
+			path = internalPath.Select(PathSelector);
 			return success;
+
+			static TNode PathSelector((UnitDirection, TNode, long) p) => p.Item2;
 		}
 
 		public static bool Search<TNode, TDirection>(
@@ -41,18 +59,36 @@ namespace AoC.Library
 			out IEnumerable<(TDirection, TNode)> path,
 			Action<TDirection, TNode>? between = null,
 			IEqualityComparer<TNode>? nodeComparer = null
+		) where TNode : notnull =>
+			SearchWithPath(
+				start,
+				getNext,
+				goalCondition,
+				out path,
+				between is not null ? p => { var (d, n) = p.Last(); between(d, n); } : null,
+				nodeComparer);
+
+		public static bool SearchWithPath<TNode, TDirection>(
+			TNode start,
+			Func<TNode, IEnumerable<(TDirection, TNode)>> getNext,
+			Func<TNode, bool> goalCondition,
+			out IEnumerable<(TDirection, TNode)> path,
+			Action<IEnumerable<(TDirection, TNode)>>? between,
+			IEqualityComparer<TNode>? nodeComparer = null
 		) where TNode : notnull
 		{
-			bool success = Search<TNode, TDirection>(
+			bool success = SearchWithPath<TNode, TDirection>(
 				start,
 				n => getNext(n).Select(static p => (p.Item1, p.Item2, 1L)),
 				goalCondition,
 				out IEnumerable<(TDirection, TNode, long)> internalPath,
-				between is not null ? (d, n, _) => between(d, n) : null,
+				between is not null ? p => between(p.Select(PathSelector)) : null,
 				nodeComparer
 			);
-			path = internalPath.Select(static p => (p.Item1, p.Item2));
+			path = internalPath.Select(PathSelector);
 			return success;
+
+			static (TDirection, TNode) PathSelector((TDirection, TNode, long) p) => (p.Item1, p.Item2);
 		}
 
 		public static bool Search<TNode>(
@@ -62,18 +98,36 @@ namespace AoC.Library
 			out IEnumerable<(TNode, long)> path,
 			Action<TNode, long>? between = null,
 			IEqualityComparer<TNode>? nodeComparer = null
+		) where TNode : notnull =>
+			SearchWithPath(
+				start,
+				getNext,
+				goalCondition,
+				out path,
+				between is not null ? p => { var (n, c) = p.Last(); between(n, c); } : null,
+				nodeComparer);
+
+		public static bool SearchWithPath<TNode>(
+			TNode start,
+			Func<TNode, IEnumerable<(TNode, long)>> getNext,
+			Func<TNode, bool> goalCondition,
+			out IEnumerable<(TNode, long)> path,
+			Action<IEnumerable<(TNode, long)>>? between,
+			IEqualityComparer<TNode>? nodeComparer = null
 		) where TNode : notnull
 		{
-			bool success = Search<TNode, UnitDirection>(
+			bool success = SearchWithPath<TNode, UnitDirection>(
 				start,
 				n => getNext(n).Select(static p => (UnitDirection.Unit, p.Item1, p.Item2)),
 				goalCondition,
 				out IEnumerable<(UnitDirection, TNode, long)> internalPath,
-				between is not null ? (_, n, c) => between(n, c) : null,
+				between is not null ? p => between(p.Select(PathSelector)) : null,
 				nodeComparer
 			);
-			path = internalPath.Select(static p => (p.Item2, p.Item3));
+			path = internalPath.Select(PathSelector);
 			return success;
+
+			static (TNode, long) PathSelector((UnitDirection, TNode, long) p) => (p.Item2, p.Item3);
 		}
 
 		public static bool Search<TNode, TDirection>(
@@ -82,6 +136,22 @@ namespace AoC.Library
 			Func<TNode, bool> goalCondition,
 			out IEnumerable<(TDirection, TNode, long)> path,
 			Action<TDirection, TNode, long>? between = null,
+			IEqualityComparer<TNode>? nodeComparer = null
+		) where TNode : notnull =>
+			SearchWithPath(
+				start,
+				getNext,
+				goalCondition,
+				out path,
+				between is not null ? p => { var (d, n, c) = p.Last(); between(d, n, c); } : null,
+				nodeComparer);
+
+		public static bool SearchWithPath<TNode, TDirection>(
+			TNode start,
+			Func<TNode, IEnumerable<(TDirection, TNode, long)>> getNext,
+			Func<TNode, bool> goalCondition,
+			out IEnumerable<(TDirection, TNode, long)> path,
+			Action<IEnumerable<(TDirection, TNode, long)>>? between,
 			IEqualityComparer<TNode>? nodeComparer = null
 		) where TNode : notnull
 		{
@@ -102,7 +172,7 @@ namespace AoC.Library
 				long cost = pathToCurrent.Count > 0 ? pathToCurrent[pathToCurrent.Count - 1].Item3 : 0L;
 				if (between is not null && pathToCurrent.Count > 0)
 				{
-					between(pathToCurrent[pathToCurrent.Count - 1].Item1, current, cost);
+					between(pathToCurrent);
 				}
 				foreach (var (direction, next, additionalCost) in getNext(current))
 				{
