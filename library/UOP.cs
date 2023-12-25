@@ -13,6 +13,9 @@ namespace AoC.Library
 		public UOP(T a, T b) =>
 			(A, B) = (a, b);
 
+		public void Deconstruct(out T a, out T b) =>
+			(a, b) = (A, B);
+
 		public override bool Equals(object? obj) =>
 			obj is UOP<T> oip && Equals(oip);
 
