@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<RootNamespace>AoC.Year2024</RootNamespace>
+		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
+		<PackageReference Include="TextCopy" Version="6.1.0" />
+		<ProjectReference Include="..\library\library.csproj" />
+		<PackageReference Include="RegExtract" Version="1.0.18" />
+		<PackageReference Include="Microsoft.Z3" Version="4.11.2" />
+	</ItemGroup>
+
+</Project>
