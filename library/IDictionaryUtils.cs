@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using static AoC.Library.Functional;
 
 namespace AoC.Library
@@ -25,6 +27,28 @@ namespace AoC.Library
 			{
 				source.Add(key, creator());
 			}
+		}
+
+		public static string ToMapString(this IReadOnlyDictionary<Vector2, char> map, char empty = ' ') =>
+			map.ToMapString(Id, empty);
+
+		public static string ToMapString<T>(this IReadOnlyDictionary<Vector2, T> map, Func<T, char> charSelector, char empty = ' ')
+		{
+			var sb = new StringBuilder();
+			var min = map.Keys.Min();
+			var max = map.Keys.Max();
+			for (long y = min.Y; y <= max.Y; y++)
+			{
+				for (long x = min.X; x <= max.X; x++)
+				{
+					sb.Append(map.TryGetValue(new(x, y), out var t) ? charSelector(t) : empty);
+				}
+				if (y + 1 <= max.Y)
+				{
+					sb.AppendLine();
+				}
+			}
+			return sb.ToString();
 		}
 	}
 }
