@@ -201,6 +201,25 @@ namespace AoC.Library.Test
 		}
 
 		[TestMethod]
+		public void IsWithin()
+		{
+			var min = new Vector2(10, 12);
+			var max = new Vector2(20, 18);
+
+			Assert.IsTrue(new Vector2(15, 15).IsWithin(min, max));
+			Assert.IsTrue(min.IsWithin(min, max));
+			Assert.IsTrue(max.IsWithin(min, max));
+
+			Assert.IsFalse(new Vector2(5, 7).IsWithin(min, max));
+			Assert.IsFalse(new Vector2(5, 15).IsWithin(min, max));
+			Assert.IsFalse(new Vector2(15, 7).IsWithin(min, max));
+
+			Assert.IsFalse(new Vector2(25, 23).IsWithin(min, max));
+			Assert.IsFalse(new Vector2(25, 15).IsWithin(min, max));
+			Assert.IsFalse(new Vector2(15, 23).IsWithin(min, max));
+		}
+
+		[TestMethod]
 		public void Deconstructor()
 		{
 			const long X = 1;

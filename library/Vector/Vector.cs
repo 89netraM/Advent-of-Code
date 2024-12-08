@@ -181,6 +181,18 @@ namespace AoC.Library
 			return FromArray<T>(t);
 		}
 
+		public static bool IsWithin<T>(this T vector, in T min, in T max) where T : IVector<T>
+		{
+			for (long i = 0; i < vector.Count; i++)
+			{
+				if (vector[i] < min[i] || max[i] < vector[i])
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
 		public static bool Equals<T>(in T a, in T b) where T : IVector<T>
 		{
 			for (long i = 0; i < a.Count; i++)
