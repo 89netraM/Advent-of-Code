@@ -193,6 +193,28 @@ namespace AoC.Library
 			return true;
 		}
 
+		public static IEnumerable<T> To<T>(this T from, in T to) where T : IVector<T> =>
+			from.ToRecursive(to, []);
+		private static IEnumerable<T> ToRecursive<T>(this T from, T to, List<long> taken) where T : IVector<T>
+		{
+			if (taken.Count == from.Count)
+			{
+				yield return FromArray<T>(taken);
+			}
+			else
+			{
+				for (long i = from[taken.Count]; i <= to[taken.Count]; i++)
+				{
+					taken.Add(i);
+					foreach (T t in from.ToRecursive(to, taken))
+					{
+						yield return t;
+					}
+					taken.RemoveAt(taken.Count - 1);
+				}
+			}
+		}
+
 		public static bool Equals<T>(in T a, in T b) where T : IVector<T>
 		{
 			for (long i = 0; i < a.Count; i++)

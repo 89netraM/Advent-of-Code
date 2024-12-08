@@ -220,6 +220,45 @@ namespace AoC.Library.Test
 		}
 
 		[TestMethod]
+		public void FromToTo_AllAreWithin()
+		{
+			Prop.ForAll(
+					ArbitraryVector2,
+					ArbitraryVector2,
+					static (from, to) => from.To(to).All(v => v.IsWithin(from, to))
+				).QuickCheckThrowOnFailure();
+		}
+		[TestMethod]
+		public void FromToTo_AllAreDistinct()
+		{
+			Prop.ForAll(
+					ArbitraryVector2,
+					ArbitraryVector2,
+					static (from, to) =>
+					{
+						var vs = from.To(to).ToArray();
+						return vs.Length == vs.Distinct().Count();
+					}
+				).QuickCheckThrowOnFailure();
+		}
+		[TestMethod]
+		public void FromToTo_CorrectCount()
+		{
+			Prop.ForAll(
+					ArbitraryVector2,
+					ArbitraryVector2,
+					static (from, to) =>
+					{
+						var actualCount = from.To(to).Count();
+						var expectedCount = from.X <= to.X && from.Y <= to.Y
+							? (to.X - from.X + 1) * (to.Y - from.Y + 1)
+							: 0;
+						return actualCount == expectedCount;
+					}
+				).QuickCheckThrowOnFailure();
+		}
+
+		[TestMethod]
 		public void Deconstructor()
 		{
 			const long X = 1;

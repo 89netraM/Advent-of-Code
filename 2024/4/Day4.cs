@@ -13,97 +13,74 @@ public class Day4
         var min = map.Keys.Min();
         var max = map.Keys.Max();
         long count = 0;
-        for (var y = min.Y; y <= max.Y; y++)
-        for (var x = min.X; x <= max.X; x++)
+        foreach (var v in min.To(max))
         {
-            // Right
+            // Right and Left
             if (
-                x + 3 <= max.X
-                && map[new(x, y)] is 'X'
-                && map[new(x + 1, y)] is 'M'
-                && map[new(x + 2, y)] is 'A'
-                && map[new(x + 3, y)] is 'S'
+                v.X + 3 <= max.X
+                && (
+                    map[v],
+                    map[v + Vector2.Right],
+                    map[v + Vector2.Right * 2],
+                    map[v + Vector2.Right * 3]
+                )
+                    is
+                        ('X', 'M', 'A', 'S')
+                        or
+                        ('S', 'A', 'M', 'X')
             )
             {
                 count++;
             }
-            // Left
+            // Down and Up
             if (
-                x - 3 >= min.X
-                && map[new(x, y)] is 'X'
-                && map[new(x - 1, y)] is 'M'
-                && map[new(x - 2, y)] is 'A'
-                && map[new(x - 3, y)] is 'S'
+                v.Y + 3 <= max.Y
+                && (
+                    map[v],
+                    map[v + Vector2.Down],
+                    map[v + Vector2.Down * 2],
+                    map[v + Vector2.Down * 3]
+                )
+                    is
+                        ('X', 'M', 'A', 'S')
+                        or
+                        ('S', 'A', 'M', 'X')
             )
             {
                 count++;
             }
-            // Down right
+            // Down right and Up left
             if (
-                x + 3 <= max.X
-                && y + 3 <= max.Y
-                && map[new(x, y)] is 'X'
-                && map[new(x + 1, y + 1)] is 'M'
-                && map[new(x + 2, y + 2)] is 'A'
-                && map[new(x + 3, y + 3)] is 'S'
+                v.X + 3 <= max.X
+                && v.Y + 3 <= max.Y
+                && (
+                    map[v],
+                    map[v + (Vector2.Down + Vector2.Right)],
+                    map[v + (Vector2.Down + Vector2.Right) * 2],
+                    map[v + (Vector2.Down + Vector2.Right) * 3]
+                )
+                    is
+                        ('X', 'M', 'A', 'S')
+                        or
+                        ('S', 'A', 'M', 'X')
             )
             {
                 count++;
             }
-            // Down left
+            // Down left and Up right
             if (
-                x - 3 >= min.X
-                && y + 3 <= max.Y
-                && map[new(x, y)] is 'X'
-                && map[new(x - 1, y + 1)] is 'M'
-                && map[new(x - 2, y + 2)] is 'A'
-                && map[new(x - 3, y + 3)] is 'S'
-            )
-            {
-                count++;
-            }
-            // Up right
-            if (
-                x + 3 <= max.X
-                && y - 3 >= min.Y
-                && map[new(x, y)] is 'X'
-                && map[new(x + 1, y - 1)] is 'M'
-                && map[new(x + 2, y - 2)] is 'A'
-                && map[new(x + 3, y - 3)] is 'S'
-            )
-            {
-                count++;
-            }
-            // Up left
-            if (
-                x - 3 >= min.X
-                && y - 3 >= min.Y
-                && map[new(x, y)] is 'X'
-                && map[new(x - 1, y - 1)] is 'M'
-                && map[new(x - 2, y - 2)] is 'A'
-                && map[new(x - 3, y - 3)] is 'S'
-            )
-            {
-                count++;
-            }
-            // Down
-            if (
-                y + 3 <= max.Y
-                && map[new(x, y)] is 'X'
-                && map[new(x, y + 1)] is 'M'
-                && map[new(x, y + 2)] is 'A'
-                && map[new(x, y + 3)] is 'S'
-            )
-            {
-                count++;
-            }
-            // Up
-            if (
-                y - 3 >= min.Y
-                && map[new(x, y)] is 'X'
-                && map[new(x, y - 1)] is 'M'
-                && map[new(x, y - 2)] is 'A'
-                && map[new(x, y - 3)] is 'S'
+                v.X - 3 >= min.X
+                && v.Y + 3 <= max.Y
+                && (
+                    map[v],
+                    map[v + (Vector2.Down + Vector2.Left)],
+                    map[v + (Vector2.Down + Vector2.Left) * 2],
+                    map[v + (Vector2.Down + Vector2.Left) * 3]
+                )
+                    is
+                        ('X', 'M', 'A', 'S')
+                        or
+                        ('S', 'A', 'M', 'X')
             )
             {
                 count++;
@@ -119,16 +96,19 @@ public class Day4
         var min = map.Keys.Min();
         var max = map.Keys.Max();
         long count = 0;
-        for (var y = min.Y; y <= max.Y - 2; y++)
-        for (var x = min.X; x <= max.X - 2; x++)
+        foreach (var v in min.To(max - new Vector2(2, 2)))
         {
             if (
-                (map[new(x, y)], map[new(x + 1, y + 1)], map[new(x + 2, y + 2)])
+                (map[v], map[v + new Vector2(1, 1)], map[v + new Vector2(2, 2)])
                     is
                         ('M', 'A', 'S')
                         or
                         ('S', 'A', 'M')
-                && (map[new(x, y + 2)], map[new(x + 1, y + 1)], map[new(x + 2, y)])
+                && (
+                    map[v + new Vector2(0, 2)],
+                    map[v + new Vector2(1, 1)],
+                    map[v + new Vector2(2, 0)]
+                )
                     is
                         ('M', 'A', 'S')
                         or
