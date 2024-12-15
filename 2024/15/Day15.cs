@@ -1,237 +1,8 @@
-// --- Day 15: Warehouse Woes ---
-// You appear back inside your own mini submarine! Each Historian drives their mini submarine in a different direction; maybe the Chief has his own submarine down here somewhere as well?
-// You look up to see a vast school of lanternfish swimming past you. On closer inspection, they seem quite anxious, so you drive your mini submarine over to see if you can help.
-// Because lanternfish populations grow rapidly, they need a lot of food, and that food needs to be stored somewhere. That's why these lanternfish have built elaborate warehouse complexes operated by robots!
-// These lanternfish seem so anxious because they have lost control of the robot that operates one of their most important warehouses! It is currently running amok, pushing around boxes in the warehouse with no regard for lanternfish logistics or lanternfish inventory management strategies.
-// Right now, none of the lanternfish are brave enough to swim up to an unpredictable robot so they could shut it off. However, if you could anticipate the robot's movements, maybe they could find a safe option.
-// The lanternfish already have a map of the warehouse and a list of movements the robot will attempt to make (your puzzle input). The problem is that the movements will sometimes fail as boxes are shifted around, making the actual movements of the robot difficult to predict.
-// For example:
-// ##########
-// #..O..O.O#
-// #......O.#
-// #.OO..O.O#
-// #..O@..O.#
-// #O#..O...#
-// #O..O..O.#
-// #.OO.O.OO#
-// #....O...#
-// ##########
-//
-// <vv>^<v^>v>^vv^v>v<>v^v<v<^vv<<<^><<><>>v<vvv<>^v^>^<<<><<v<<<v^vv^v>^
-// vvv<<^>^v^^><<>>><>^<<><^vv^^<>vvv<>><^^v>^>vv<>v<<<<v<^v>^<^^>>>^<v<v
-// ><>vv>v^v^<>><>>>><^^>vv>v<^^^>>v^v^<^^>v^^>v^<^v>v<>>v^v^<v>v^^<^^vv<
-// <<v<^>>^^^^>>>v^<>vvv^><v<<<>^^^vv^<vvv>^>v<^^^^v<>^>vvvv><>>v^<<^^^^^
-// ^><^><>>><>^^<<^^v>>><^<v>^<vv>>v>>>^v><>^v><<<<v>>v<v<v>vvv>^<><<>^><
-// ^>><>^v<><^vvv<^^<><v<<<<<><^v<<<><<<^^<v<^^^><^>>^<v^><<<^>>^v<v^v<v^
-// >^>>^v>vv>^<<^v<>><<><<v<<v><>v<^vv<<<>^^v^>^^>>><<^v>>v^v><^^>>^<>vv^
-// <><^^>^^^<><vvvvv^v<v<<>^v<v>v<<^><<><<><<<^^<<<^<<>><<><^^^>^^<>^>v<>
-// ^^>vv<^v^v<vv>^<><v<^v>^^^>>>^^vvv^>vvv<>>>^<^>>>>>^<<^v>^vvv<>^<><<v>
-// v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^
-// As the robot (@) attempts to move, if there are any boxes (O) in the way, the robot will also attempt to push those boxes. However, if this action would cause the robot or a box to move into a wall (#), nothing moves instead, including the robot. The initial positions of these are shown on the map at the top of the document the lanternfish gave you.
-// The rest of the document describes the moves (^ for up, v for down, < for left, > for right) that the robot will attempt to make, in order. (The moves form a single giant sequence; they are broken into multiple lines just to make copy-pasting easier. Newlines within the move sequence should be ignored.)
-// Here is a smaller example to get started:
-// ########
-// #..O.O.#
-// ##@.O..#
-// #...O..#
-// #.#.O..#
-// #...O..#
-// #......#
-// ########
-//
-// <^^>>>vv<v>>v<<
-// Were the robot to attempt the given sequence of moves, it would push around the boxes as follows:
-// Initial state:
-// ########
-// #..O.O.#
-// ##@.O..#
-// #...O..#
-// #.#.O..#
-// #...O..#
-// #......#
-// ########
-//
-// Move <:
-// ########
-// #..O.O.#
-// ##@.O..#
-// #...O..#
-// #.#.O..#
-// #...O..#
-// #......#
-// ########
-//
-// Move ^:
-// ########
-// #.@O.O.#
-// ##..O..#
-// #...O..#
-// #.#.O..#
-// #...O..#
-// #......#
-// ########
-//
-// Move ^:
-// ########
-// #.@O.O.#
-// ##..O..#
-// #...O..#
-// #.#.O..#
-// #...O..#
-// #......#
-// ########
-//
-// Move >:
-// ########
-// #..@OO.#
-// ##..O..#
-// #...O..#
-// #.#.O..#
-// #...O..#
-// #......#
-// ########
-//
-// Move >:
-// ########
-// #...@OO#
-// ##..O..#
-// #...O..#
-// #.#.O..#
-// #...O..#
-// #......#
-// ########
-//
-// Move >:
-// ########
-// #...@OO#
-// ##..O..#
-// #...O..#
-// #.#.O..#
-// #...O..#
-// #......#
-// ########
-//
-// Move v:
-// ########
-// #....OO#
-// ##..@..#
-// #...O..#
-// #.#.O..#
-// #...O..#
-// #...O..#
-// ########
-//
-// Move v:
-// ########
-// #....OO#
-// ##..@..#
-// #...O..#
-// #.#.O..#
-// #...O..#
-// #...O..#
-// ########
-//
-// Move <:
-// ########
-// #....OO#
-// ##.@...#
-// #...O..#
-// #.#.O..#
-// #...O..#
-// #...O..#
-// ########
-//
-// Move v:
-// ########
-// #....OO#
-// ##.....#
-// #..@O..#
-// #.#.O..#
-// #...O..#
-// #...O..#
-// ########
-//
-// Move >:
-// ########
-// #....OO#
-// ##.....#
-// #...@O.#
-// #.#.O..#
-// #...O..#
-// #...O..#
-// ########
-//
-// Move >:
-// ########
-// #....OO#
-// ##.....#
-// #....@O#
-// #.#.O..#
-// #...O..#
-// #...O..#
-// ########
-//
-// Move v:
-// ########
-// #....OO#
-// ##.....#
-// #.....O#
-// #.#.O@.#
-// #...O..#
-// #...O..#
-// ########
-//
-// Move <:
-// ########
-// #....OO#
-// ##.....#
-// #.....O#
-// #.#O@..#
-// #...O..#
-// #...O..#
-// ########
-//
-// Move <:
-// ########
-// #....OO#
-// ##.....#
-// #.....O#
-// #.#O@..#
-// #...O..#
-// #...O..#
-// ########
-// The larger example has many more moves; after the robot has finished those moves, the warehouse would look like this:
-// ##########
-// #.O.O.OOO#
-// #........#
-// #OO......#
-// #OO@.....#
-// #O#.....O#
-// #O.....OO#
-// #O.....OO#
-// #OO....OO#
-// ##########
-// The lanternfish use their own custom Goods Positioning System (GPS for short) to track the locations of the boxes. The GPS coordinate of a box is equal to 100 times its distance from the top edge of the map plus its distance from the left edge of the map. (This process does not stop at wall tiles; measure all the way to the edges of the map.)
-// So, the box shown below has a distance of 1 from the top edge of the map and 4 from the left edge of the map, resulting in a GPS coordinate of 100 * 1 + 4 = 104.
-// #######
-// #...O..
-// #......
-// The lanternfish would like to know the sum of all boxes' GPS coordinates after the robot finishes moving. In the larger example, the sum of all boxes' GPS coordinates is 10092. In the smaller example, the sum is 2028.
-// Predict the motion of the robot and boxes in the warehouse. After the robot is finished moving, what is the sum of all boxes' GPS coordinates?
-// To begin, get your puzzle input.
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.RegularExpressions;
 using AoC.Library;
-using Microsoft.VisualBasic;
-using RegExtract;
-using static AoC.Library.Functional;
 
 namespace AoC.Year2024;
 
@@ -371,7 +142,7 @@ public class Day15
             }
         }
 
-        return map.Where(kvp => kvp.Value is Item.Box).Sum(kvp => kvp.Key.Y * 100 + kvp.Key.X);
+        return map.Where(kvp => kvp.Value is Item.LeftBox).Sum(kvp => kvp.Key.Y * 100 + kvp.Key.X);
     }
 
     private static bool RobotPushWide(Dictionary<Vector2, Item> map, Vector2 pos, Vector2 dir)
@@ -386,7 +157,7 @@ public class Day15
             return false;
         }
 
-        if (dir.X is 0)
+        if (dir.Y is 0)
         {
             if (Push(map, pos + dir, dir))
             {
@@ -405,84 +176,80 @@ public class Day15
 
         if (BoxPushWide(map, pos + dir, dir))
         {
-            map[pos + dir + dir] = map[pos + dir];
-            map.Remove(pos + dir);
-            map[pos + dir + dir + Vector2.Right] = map[pos + dir + Vector2.Right];
-            map.Remove(pos + dir + Vector2.Right);
+            if (map.TryGetValue(pos + dir, out var itemToPush))
+            {
+                map[pos + dir + dir] = itemToPush;
+                map.Remove(pos + dir);
+            }
+            if (map.TryGetValue(pos + dir + Vector2.Right, out itemToPush))
+            {
+                map[pos + dir + dir + Vector2.Right] = itemToPush;
+                map.Remove(pos + dir + Vector2.Right);
+            }
             return true;
         }
 
         return false;
     }
 
-    private static bool BoxPushWide<TMap>(TMap map, Vector2 pos, Vector2 dir)
+    private static bool BoxPushWide<TMap>(TMap map, Vector2 startPos, Vector2 dir)
         where TMap : IDictionary<Vector2, Item>
     {
-        if (
-            !(
-                map.TryGetValue(pos + dir, out var blockingItem)
-                && map.TryGetValue(pos + dir + Vector2.Right, out var blockingItem2)
+        var queue = new Queue<Vector2>([startPos]);
+        var pushes = new HashSet<Vector2>();
+
+        while (queue.TryDequeue(out var from))
+        {
+            if (
+                !map.TryGetValue(from + dir, out var leftItem)
+                & !map.TryGetValue(from + dir + Vector2.Right, out var rightItem)
             )
-        )
-        {
-            return true;
+            {
+                continue;
+            }
+
+            if (leftItem is Item.Wall || rightItem is Item.Wall)
+            {
+                return false;
+            }
+
+            switch ((leftItem, rightItem))
+            {
+                case (Item.LeftBox, Item.RightBox):
+                    queue.Enqueue(from + dir);
+                    pushes.Add(from + dir);
+                    pushes.Add(from + Vector2.Right + dir);
+                    break;
+                case (Item.RightBox, Item.LeftBox):
+                    queue.Enqueue(from + Vector2.Left + dir);
+                    queue.Enqueue(from + Vector2.Right + dir);
+                    pushes.Add(from + Vector2.Left + dir);
+                    pushes.Add(from + dir);
+                    pushes.Add(from + Vector2.Right + dir);
+                    pushes.Add(from + Vector2.Right * 2 + dir);
+                    break;
+                case (Item.RightBox, _):
+                    queue.Enqueue(from + Vector2.Left + dir);
+                    pushes.Add(from + Vector2.Left + dir);
+                    pushes.Add(from + dir);
+                    break;
+                case (_, Item.LeftBox):
+                    queue.Enqueue(from + Vector2.Right + dir);
+                    pushes.Add(from + Vector2.Right + dir);
+                    pushes.Add(from + Vector2.Right * 2 + dir);
+                    break;
+                case var pair:
+                    throw new Exception($"Aaaaa! {pair}");
+            }
         }
 
-        if (blockingItem is Item.Wall || blockingItem2 is Item.Wall)
+        foreach (var push in pushes.OrderBy(v => v.Y * -dir.Y))
         {
-            return false;
+            map[push + dir] = map[push];
+            map.Remove(push);
         }
 
-        switch ((blockingItem, blockingItem2))
-        {
-            case (Item.LeftBox, Item.RightBox):
-                if (BoxPushWide(map, pos + dir, dir))
-                {
-                    Move(pos);
-                    return true;
-                }
-                break;
-            case (Item.RightBox, Item.LeftBox):
-                var leftMap = new RecorderMap<Item>(map);
-                var rightMap = new RecorderMap<Item>(map);
-                if (
-                    BoxPushWide(leftMap, pos + dir + Vector2.Left, dir)
-                    && BoxPushWide(rightMap, pos + dir + Vector2.Right, dir)
-                )
-                {
-                    map.Apply(leftMap, rightMap);
-                    Move(pos + Vector2.Left);
-                    Move(pos + Vector2.Right);
-                    return true;
-                }
-                break;
-            case (_, Item.LeftBox):
-                pos += Vector2.Right;
-                if (BoxPushWide(map, pos + dir, dir))
-                {
-                    Move(pos);
-                    return true;
-                }
-                break;
-            case (Item.RightBox, _):
-                pos += Vector2.Left;
-                if (BoxPushWide(map, pos + dir, dir))
-                {
-                    Move(pos);
-                    return true;
-                }
-                break;
-        }
-
-        return false;
-
-        void Move(Vector2 pos)
-        {
-            map[pos + dir + dir] = map[pos + dir];
-            map.Remove(pos + dir);
-            map[pos + dir + dir + Vector2.Right] = map[pos + dir + Vector2.Right];
-            map.Remove(pos + dir + Vector2.Right);
-        }
+        return true;
     }
 
     private static string ToString(Dictionary<Vector2, Item> map, Vector2 robotPos)
@@ -533,86 +300,4 @@ public class Day15
         RightBox,
         Wall,
     }
-}
-
-file static class RecorderMapExtensions
-{
-    public static void Apply<T>(
-        this IDictionary<Vector2, T> map,
-        RecorderMap<T> left,
-        RecorderMap<T> right
-    )
-    {
-        var moved = new HashSet<Vector2>();
-        foreach (var (from, dir) in left.Actions)
-        {
-            map[from + dir] = map[from];
-            map.Remove(from);
-            moved.Add(from);
-        }
-        foreach (var (from, dir) in right.Actions)
-        {
-            if (!moved.Contains(from))
-            {
-                map[from + dir] = map[from];
-                map.Remove(from);
-            }
-        }
-    }
-}
-
-file class RecorderMap<T>(IDictionary<Vector2, T> source) : IDictionary<Vector2, T>
-{
-    private readonly IDictionary<Vector2, T> inner = source.ToDictionary();
-
-    private Vector2 to = Vector2.Zero;
-    private readonly List<(Vector2 from, Vector2 dir)> actions = [];
-
-    public IReadOnlyList<(Vector2 from, Vector2 dir)> Actions => actions;
-
-    public T this[Vector2 key]
-    {
-        get => throw new NotImplementedException();
-        set
-        {
-            to = key;
-            inner[key] = value;
-        }
-    }
-
-    public ICollection<Vector2> Keys => throw new NotImplementedException();
-
-    public ICollection<T> Values => throw new NotImplementedException();
-
-    public int Count => inner.Count;
-
-    public bool IsReadOnly => throw new NotImplementedException();
-
-    public void Add(Vector2 key, T value) => throw new NotImplementedException();
-
-    public void Add(KeyValuePair<Vector2, T> item) => throw new NotImplementedException();
-
-    public void Clear() => throw new NotImplementedException();
-
-    public bool Contains(KeyValuePair<Vector2, T> item) => throw new NotImplementedException();
-
-    public bool ContainsKey(Vector2 key) => throw new NotImplementedException();
-
-    public void CopyTo(KeyValuePair<Vector2, T>[] array, int arrayIndex) =>
-        throw new NotImplementedException();
-
-    public IEnumerator<KeyValuePair<Vector2, T>> GetEnumerator() => inner.GetEnumerator();
-
-    public bool Remove(Vector2 key)
-    {
-        actions.Add((key, to - key));
-        return inner.Remove(key);
-    }
-
-    public bool Remove(KeyValuePair<Vector2, T> item) => throw new NotImplementedException();
-
-    public bool TryGetValue(Vector2 key, [MaybeNullWhen(false)] out T value) =>
-        inner.TryGetValue(key, out value);
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
