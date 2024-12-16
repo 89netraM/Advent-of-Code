@@ -153,6 +153,22 @@ namespace AoC.Library
 			out IEnumerable<(TDirection, TNode, long)> path,
 			Action<IEnumerable<(TDirection, TNode, long)>>? between,
 			IEqualityComparer<TNode>? nodeComparer = null
+		) where TNode : notnull =>
+			SearchWithPath(
+				start,
+				(_, n) => getNext(n),
+				goalCondition,
+				out path,
+				between,
+				nodeComparer);
+
+		public static bool SearchWithPath<TNode, TDirection>(
+			TNode start,
+			Func<TDirection?, TNode, IEnumerable<(TDirection, TNode, long)>> getNext,
+			Func<TNode, bool> goalCondition,
+			out IEnumerable<(TDirection, TNode, long)> path,
+			Action<IEnumerable<(TDirection, TNode, long)>>? between = null,
+			IEqualityComparer<TNode>? nodeComparer = null
 		) where TNode : notnull
 		{
 			IDictionary<TNode, IImmutableList<(TDirection, TNode, long)>> directionTo = new Dictionary<TNode, IImmutableList<(TDirection, TNode, long)>>(nodeComparer);
@@ -174,7 +190,8 @@ namespace AoC.Library
 				{
 					between(pathToCurrent);
 				}
-				foreach (var (direction, next, additionalCost) in getNext(current))
+				TDirection? directionToCurrent = pathToCurrent is [.., (var d, _, _)] ? d : default;
+				foreach (var (direction, next, additionalCost) in getNext(directionToCurrent, current))
 				{
 					long nextCost = cost + additionalCost;
 					if (!directionTo.TryGetValue(next, out IImmutableList<(TDirection, TNode, long)>? pathToNext) ||
