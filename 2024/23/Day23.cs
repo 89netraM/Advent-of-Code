@@ -54,37 +54,28 @@ public class Day23
     {
         var directConnections = input
             .Lines()
-            .Extract<(string, string)>(@"(\w+)-(\w+)");
+            .Extract<(string, string)>(@"(\w+)-(\w+)")
+            .ToHashSet();
         var outgoingConnections =
             directConnections
             .Concat(directConnections.Select(p => (p.Item2, p.Item1)))
             .ToLookup(p => p.Item1, p => p.Item2)
             .ToDictionary(g => g.Key, g => g.ToHashSet());
-        var groups = new List<HashSet<string>>();
+        var groups = outgoingConnections.Select(kvp => new HashSet<string> { kvp.Key }).ToList();
         var updated = true;
         while (updated)
         {
             updated = false;
-            foreach (var (from, tos) in outgoingConnections)
+            for (var i = 0; i < groups.Count; i++)
             {
-                var contains = false;
-                foreach (var group in groups)
+                for (var j = i + 1; j < groups.Count; j++)
                 {
-                    if (group.Contains(from))
+                    if (groups[i].All(f => groups[j].All(t => outgoingConnections[f].Contains(t) && outgoingConnections[t].Contains(f))))
                     {
-                        contains = true;
-                        continue;
-                    }
-                    if (group.All(c => outgoingConnections[c].Contains(from) && tos.Contains(c)))
-                    {
-                        group.Add(from);
-                        contains = true;
+                        groups[i].UnionWith(groups[j]);
+                        groups.RemoveAt(j--);
                         updated = true;
                     }
-                }
-                if (!contains)
-                {
-                    groups.Add([from]);
                 }
             }
         }
