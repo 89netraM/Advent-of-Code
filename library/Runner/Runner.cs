@@ -97,6 +97,10 @@ namespace AoC.Library
 				.ToArray();
 			var runInfo = new BenchmarkRunInfo(cases, dayClass, BenchmarkConfig);
 			var summary = BenchmarkRunner.Run(runInfo);
+			foreach (var report in summary.Reports)
+			{
+				Console.WriteLine($"LEADERBOARD::{report.BenchmarkCase.Descriptor.WorkloadMethodDisplayInfo.ToUpperInvariant()}::TIME {double.Round(report.ResultStatistics.Mean)} ns");
+			}
 		}
 
 		private static bool IsBenchmarkFlag(string argument) =>
