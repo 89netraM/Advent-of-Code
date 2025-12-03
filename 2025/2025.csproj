@@ -10,6 +10,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="ComputeSharp" Version="3.2.0" />
 		<PackageReference Include="OptimizedPriorityQueue" Version="5.1.0" />
 		<PackageReference Include="TextCopy" Version="6.1.0" />
 		<ProjectReference Include="..\library\library.csproj" />
