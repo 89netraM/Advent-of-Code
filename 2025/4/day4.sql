@@ -1,5 +1,5 @@
-CREATE TABLE Input(line TEXT, lineNumber INTEGER PRIMARY KEY AUTOINCREMENT);
-.import input.txt Input
+CREATE TABLE Input(line TEXT, lineNumber SERIAL PRIMARY KEY);
+COPY Input(line) FROM '/data/input.txt';
 
 CREATE TABLE Map(x INTEGER, y INTEGER, PRIMARY KEY (x, y));
 WITH RECURSIVE Splitter AS (
@@ -31,48 +31,31 @@ SELECT 'Part 1: ' || (SELECT count(*) FROM (SELECT (
             AND NOT (Map2.x = Map.x AND Map2.y = Map.y)
     ) AS neighbors FROM Map) WHERE neighbors < 4);
 
-WITH Iterations AS (
-    WITH RECURSIVE Forklift AS (
-        SELECT
-            1 as iteration,
-            (
-                SELECT json_group_array(json_object('x', Map.x, 'y', Map.y))
-                FROM Map
-                WHERE
-                (
-                    SELECT count(*)
-                    FROM Map Map2
-                    WHERE
-                        (Map2.x = Map.x OR Map2.x + 1 = Map.x OR Map2.x - 1 = Map.x)
-                        AND (Map2.y = Map.y OR Map2.y + 1 = Map.y OR Map2.y - 1 = Map.y)
-                        AND NOT (Map2.x = Map.x AND Map2.y = Map.y)
-                ) >= 4
-            ) AS paperRolls
-        UNION ALL
-        SELECT
-            iteration + 1 AS iteration,
-            (
-                WITH ExistingPaperRolls AS (
-                    SELECT
-                        json_extract(value, '$.x') AS x,
-                        json_extract(value, '$.y') AS y
-                    FROM json_each(paperRolls)
-                )
-                SELECT json_group_array(json_object('x', p.x, 'y', p.y))
-                FROM ExistingPaperRolls p
-                WHERE
-                (
-                    SELECT count(*)
-                    FROM ExistingPaperRolls p2
-                    WHERE
-                        (p2.x = p.x OR p2.x + 1 = p.x OR p2.x - 1 = p.x)
-                        AND (p2.y = p.y OR p2.y + 1 = p.y OR p2.y - 1 = p.y)
-                        AND NOT (p2.x = p.x AND p2.y = p.y)
-                ) >= 4
-            ) AS nextPaperRolls
-        FROM Forklift
-        WHERE nextPaperRolls != paperRolls
+CREATE FUNCTION RunForklifts()
+RETURNS INTEGER
+LANGUAGE SQL
+AS $$
+    WITH ClearedPaperRolls AS (
+        DELETE
+        FROM Map
+        WHERE (
+            SELECT
+                count(*)
+            FROM
+                Map Map2
+            WHERE
+                (Map2.x = Map.x OR Map2.x + 1 = Map.x OR Map2.x - 1 = Map.x)
+                AND (Map2.y = Map.y OR Map2.y + 1 = Map.y OR Map2.y - 1 = Map.y)
+                AND NOT (Map2.x = Map.x AND Map2.y = Map.y)
+        ) < 4
+        RETURNING *
     )
-    SELECT max(iteration), json_array_length(paperRolls, '$') AS remainingPaperRolls FROM Forklift
-)
-SELECT 'Part 2: ' || (SELECT (SELECT count(*) FROM Map) - (SELECT remainingPaperRolls FROM Iterations));
+    SELECT
+        CASE
+            WHEN count(*) = 0 THEN 0
+            ELSE count(*) + RunForklifts()
+        END AS count
+    FROM ClearedPaperRolls;
+$$;
+
+SELECT 'Part 2: ' || RunForklifts();
