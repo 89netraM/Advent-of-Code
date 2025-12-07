@@ -1,0 +1,15 @@
+{
+	"name": "Haskell dev env",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"remoteUser": "${localEnv:USER}",
+	"containerUser": "${localEnv:USER}",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"haskell.haskell"
+			]
+		}
+	}
+}
