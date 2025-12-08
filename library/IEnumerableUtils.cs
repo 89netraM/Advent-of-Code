@@ -214,5 +214,34 @@ namespace AoC.Library
 			}
 			return seed;
 		}
+
+		/// <summary>
+		/// Splits each item in a list in to two lists.
+		/// </summary>
+		public static (IEnumerable<TA>, IEnumerable<TB>) UnZip<TSource, TA, TB>(
+			this IEnumerable<TSource> source,
+			Func<TSource, (TA, TB)> action
+		)
+		{
+			List<TA> aList;
+			List<TB> bList;
+			if (source.TryGetNonEnumeratedCount(out var count))
+			{
+				aList = new List<TA>(count);
+				bList = new List<TB>(count);
+			}
+			else
+			{
+				aList = [];
+				bList = [];
+			}
+			foreach (var item in source)
+			{
+				var (a, b) = action(item);
+				aList.Add(a);
+				bList.Add(b);
+			}
+			return (aList, bList);
+		}
 	}
 }
