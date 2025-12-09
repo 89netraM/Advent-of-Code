@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Data;
@@ -17,15 +18,37 @@ public class Day8
 		var junctions = Parse(input);
 		var pairs = CalculateDistances(junctions).ToImmutableArray();
 		var circuits = CalculateCircuits(pairs);
-		// using var game = new Day8Game(junctions, pairs, circuits.ToImmutableArray());
-		// game.Run();
 		return circuits.Product();
 	}
+
+	[Part(2)]
+	public object Part2(string input)
+	{
+		var junctions = Parse(input);
+		var pairs = CalculateDistances(junctions, junctions.Count * (junctions.Count - 1) / 2).ToImmutableArray();
+		var (a, b) = FindLastMerge(junctions, pairs);
+		return a.X * b.X;
+	}
+
+#if GAME
+	[Part(0)]
+	public object Part0(string input)
+	{
+		var junctions = Parse(input);
+		var pairs = CalculateDistances(junctions).ToImmutableArray();
+		using var game = new Day8Game(junctions, pairs);
+		game.Run();
+		return null;
+	}
+#endif
 
 	private static IImmutableList<Vector3> Parse(string input) =>
 		input.Lines().Extract<Vector3>("^(.*?),(.*?),(.*?)$").ToImmutableArray();
 
-	private static IEnumerable<(Vector3, Vector3)> CalculateDistances(IImmutableList<Vector3> junctions, int lightStringCount = 1000)
+	private static IEnumerable<(Vector3, Vector3)> CalculateDistances(
+		IImmutableList<Vector3> junctions,
+		int lightStringCount = 1000
+	)
 	{
 		var distances = new SortedList<double, (Vector3, Vector3)>(lightStringCount);
 		for (var i = 0; i < junctions.Count - 1; i++)
@@ -70,7 +93,8 @@ public class Day8
 				n => map[n],
 				_ => false,
 				out _,
-				n => {
+				n =>
+				{
 					nodes.Remove(n);
 					size++;
 				}
@@ -83,5 +107,50 @@ public class Day8
 		}
 
 		return circuits.UnorderedItems.Select(p => p.Element);
+	}
+
+	private static (Vector3, Vector3) FindLastMerge(
+		IImmutableList<Vector3> junctions,
+		IImmutableList<(Vector3, Vector3)> pairs
+	)
+	{
+		var circuits = new LinkedList<IImmutableSet<Vector3>>(junctions.Select(j => ImmutableHashSet.Create(j)));
+		foreach (var (a, b) in pairs)
+		{
+			var (aNode, bNode) = FindContaining(a, b);
+			if (aNode == bNode)
+			{
+				continue;
+			}
+			circuits.Remove(bNode);
+			if (circuits.Count is 1)
+			{
+				return (a, b);
+			}
+			aNode.Value = aNode.Value.Union(bNode.Value);
+		}
+
+		throw new Exception("Cannot connect all junctions.");
+
+		(LinkedListNode<IImmutableSet<Vector3>>, LinkedListNode<IImmutableSet<Vector3>>) FindContaining(
+			Vector3 a,
+			Vector3 b
+		)
+		{
+			LinkedListNode<IImmutableSet<Vector3>> aNode = null!,
+				bNode = null!;
+			for (var node = circuits.First; node is not null; node = node.Next)
+			{
+				if (node.Value.Contains(a))
+				{
+					aNode = node;
+				}
+				if (node.Value.Contains(b))
+				{
+					bNode = node;
+				}
+			}
+			return (aNode, bNode);
+		}
 	}
 }
