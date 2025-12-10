@@ -43,6 +43,7 @@
 
     (local.set $coordinates (call $parse (local.get $input)))
     (call $print (call $part1 (local.get $coordinates)))
+    (call $print (call $part2 (local.get $coordinates)))
   )
 
   (func $read_input (export "read_input") (result i32)
@@ -231,6 +232,148 @@
                 (if (i64.le_u (local.get $max_area) (local.get $temp))
                   (then
                     (local.set $max_area (local.get $temp))
+                  )
+                  (else nop)
+                )
+                (local.set $j (i32.add (local.get $j) (i32.const 1)))
+                (br $j_loop)
+              )
+              (else nop)
+            )
+          )
+          (local.set $i (i32.add (local.get $i) (i32.const 1)))
+          (br $i_loop)
+        )
+        (else nop)
+      )
+    )
+
+    (local.get $max_area)
+  )
+
+  (func $part2 (param $coordinates i32) (result i64)
+    (local $coordinates_count i32)
+    (local $i i32)
+    (local $j i32)
+    (local $k i32)
+    (local $x1 i64)
+    (local $x2 i64)
+    (local $x3 i64)
+    (local $x4 i64)
+    (local $y1 i64)
+    (local $y2 i64)
+    (local $y3 i64)
+    (local $y4 i64)
+    (local $temp i64)
+    (local $area i64)
+    (local $max_area i64)
+    (local.set $coordinates_count (i32.load (local.get $coordinates)))
+    (local.set $coordinates (i32.add (i32.const 8) (local.get $coordinates)))
+
+    (loop $i_loop
+      (if (i32.lt_u (local.get $i) (local.get $coordinates_count))
+        (then
+          (local.set $j (i32.add (local.get $i) (i32.const 1)))
+          (loop $j_loop
+            (if (i32.lt_u (local.get $j) (local.get $coordinates_count))
+              (then
+                (local.set $x1 (i64.load (i32.add (local.get $coordinates) (i32.mul (local.get $i) (i32.const 16)))))
+                (local.set $x2 (i64.load (i32.add (local.get $coordinates) (i32.mul (local.get $j) (i32.const 16)))))
+                (local.set $y1 (i64.load (i32.add (local.get $coordinates) (i32.add (i32.mul (local.get $i) (i32.const 16)) (i32.const 8)))))
+                (local.set $y2 (i64.load (i32.add (local.get $coordinates) (i32.add (i32.mul (local.get $j) (i32.const 16)) (i32.const 8)))))
+                (if (i64.le_u (local.get $x1) (local.get $x2))
+                  (then
+                    (local.set $temp (local.get $x2))
+                    (local.set $x2 (local.get $x1))
+                    (local.set $x1 (local.get $temp))
+                  )
+                  (else nop)
+                )
+                (if (i64.le_u (local.get $y1) (local.get $y2))
+                  (then
+                    (local.set $temp (local.get $y2))
+                    (local.set $y2 (local.get $y1))
+                    (local.set $y1 (local.get $temp))
+                  )
+                  (else nop)
+                )
+                (local.set
+                  $area
+                  (i64.mul
+                    (i64.add (i64.sub (local.get $x1) (local.get $x2)) (i64.const 1))
+                    (i64.add (i64.sub (local.get $y1) (local.get $y2)) (i64.const 1))
+                  )
+                )
+                (if (i64.le_u (local.get $max_area) (local.get $area))
+                  (then
+                    (block $update_max_block
+                      (local.set $k (i32.const 0))
+                      (loop $k_loop
+                        (local.set $x3 (i64.load (i32.add (local.get $coordinates) (i32.mul (local.get $k) (i32.const 16)))))
+                        (local.set $x4 (i64.load (i32.add (local.get $coordinates) (i32.mul (i32.rem_u (i32.add (local.get $k) (i32.const 1)) (local.get $coordinates_count)) (i32.const 16)))))
+                        (local.set $y3 (i64.load (i32.add (local.get $coordinates) (i32.add (i32.mul (local.get $k) (i32.const 16)) (i32.const 8)))))
+                        (local.set $y4 (i64.load (i32.add (local.get $coordinates) (i32.add (i32.mul (i32.rem_u (i32.add (local.get $k) (i32.const 1)) (local.get $coordinates_count)) (i32.const 16)) (i32.const 8)))))
+
+                        (br_if $update_max_block
+                          (i32.or
+                            (i32.and
+                              (i32.and
+                                (i64.lt_u (local.get $x2) (local.get $x3))
+                                (i64.lt_u (local.get $x3) (local.get $x1))
+                              )
+                              (i32.and
+                                (i64.lt_u (local.get $y2) (local.get $y3))
+                                (i64.lt_u (local.get $y3) (local.get $y1))
+                              )
+                            )
+                            (i32.or
+                              (i32.and
+                                (i32.and
+                                  (i64.eq (local.get $x3) (local.get $x4))
+                                  (i32.and
+                                    (i64.lt_u (local.get $x2) (local.get $x3))
+                                    (i64.lt_u (local.get $x3) (local.get $x1))
+                                  )
+                                )
+                                (i32.or
+                                  (i32.and
+                                    (i64.le_u (local.get $y3) (local.get $y2))
+                                    (i64.le_u (local.get $y1) (local.get $y4))
+                                  )
+                                  (i32.and
+                                    (i64.le_u (local.get $y4) (local.get $y2))
+                                    (i64.le_u (local.get $y1) (local.get $y3))
+                                  )
+                                )
+                              )
+                              (i32.and
+                                (i32.and
+                                  (i64.eq (local.get $y3) (local.get $y4))
+                                  (i32.and
+                                    (i64.lt_u (local.get $y2) (local.get $y3))
+                                    (i64.lt_u (local.get $y3) (local.get $y1))
+                                  )
+                                )
+                                (i32.or
+                                  (i32.and
+                                    (i64.le_u (local.get $x3) (local.get $x2))
+                                    (i64.le_u (local.get $x1) (local.get $x4))
+                                  )
+                                  (i32.and
+                                    (i64.le_u (local.get $x4) (local.get $x2))
+                                    (i64.le_u (local.get $x1) (local.get $x3))
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        )
+
+                        (local.set $k (i32.add (local.get $k) (i32.const 1)))
+                        (br_if $k_loop (i32.lt_u (local.get $k) (local.get $coordinates_count)))
+                      )
+                      (local.set $max_area (local.get $area))
+                    )
                   )
                   (else nop)
                 )
